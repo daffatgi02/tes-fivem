@@ -1,0 +1,274 @@
+{
+  "weaponCategories": {
+    "pistol": {
+      "label": "Pistols",
+      "maxRange": 50.0,
+      "accuracy": 0.7,
+      "weapons": {
+        "WEAPON_PISTOL": {
+          "name": "Pistol",
+          "damage": 25,
+          "accuracy": 0.7,
+          "range": 40.0,
+          "fireRate": 300,
+          "magazineSize": 12,
+          "maxAmmo": 250,
+          "reloadTime": 1.5,
+          "price": 500,
+          "attachments": ["suppressor", "flashlight", "extendedMag"],
+          "requiredLevel": 1
+        },
+        "WEAPON_COMBATPISTOL": {
+          "name": "Combat Pistol",
+          "damage": 30,
+          "accuracy": 0.8,
+          "range": 45.0,
+          "fireRate": 350,
+          "magazineSize": 12,
+          "maxAmmo": 250,
+          "reloadTime": 1.4,
+          "price": 750,
+          "attachments": ["suppressor", "flashlight", "extendedMag"],
+          "requiredLevel": 5
+        },
+        "WEAPON_PISTOL50": {
+          "name": "Pistol .50",
+          "damage": 40,
+          "accuracy": 0.75,
+          "range": 50.0,
+          "fireRate": 250,
+          "magazineSize": 9,
+          "maxAmmo": 200,
+          "reloadTime": 1.8,
+          "price": 1000,
+          "attachments": ["suppressor", "flashlight"],
+          "requiredLevel": 10
+        }
+      }
+    },
+    "smg": {
+      "label": "Sub Machine Guns",
+      "maxRange": 80.0,
+      "accuracy": 0.6,
+      "weapons": {
+        "WEAPON_MICROSMG": {
+          "name": "Micro SMG",
+          "damage": 22,
+          "accuracy": 0.6,
+          "range": 60.0,
+          "fireRate": 700,
+          "magazineSize": 16,
+          "maxAmmo": 500,
+          "reloadTime": 1.2,
+          "price": 1200,
+          "attachments": ["suppressor", "flashlight", "extendedMag"],
+          "requiredLevel": 8
+        },
+        "WEAPON_SMG": {
+          "name": "SMG",
+          "damage": 25,
+          "accuracy": 0.65,
+          "range": 70.0,
+          "fireRate": 650,
+          "magazineSize": 30,
+          "maxAmmo": 500,
+          "reloadTime": 1.5,
+          "price": 1500,
+          "attachments": ["suppressor", "flashlight", "extendedMag", "scope"],
+          "requiredLevel": 12
+        },
+        "WEAPON_ASSAULTSMG": {
+          "name": "Assault SMG",
+          "damage": 28,
+          "accuracy": 0.7,
+          "range": 80.0,
+          "fireRate": 800,
+          "magazineSize": 30,
+          "maxAmmo": 500,
+          "reloadTime": 1.4,
+          "price": 1800,
+          "attachments": ["suppressor", "flashlight", "extendedMag", "scope", "grip"],
+          "requiredLevel": 15
+        }
+      }
+    },
+    "assault": {
+      "label": "Assault Rifles",
+      "maxRange": 200.0,
+      "accuracy": 0.8,
+      "weapons": {
+        "WEAPON_ASSAULTRIFLE": {
+          "name": "Assault Rifle",
+          "damage": 35,
+          "accuracy": 0.8,
+          "range": 180.0,
+          "fireRate": 600,
+          "magazineSize": 30,
+          "maxAmmo": 300,
+          "reloadTime": 2.0,
+          "price": 2000,
+          "attachments": ["suppressor", "flashlight", "extendedMag", "scope", "grip"],
+          "requiredLevel": 20
+        },
+        "WEAPON_CARBINERIFLE": {
+          "name": "Carbine Rifle",
+          "damage": 38,
+          "accuracy": 0.85,
+          "range": 200.0,
+          "fireRate": 550,
+          "magazineSize": 30,
+          "maxAmmo": 300,
+          "reloadTime": 2.2,
+          "price": 2200,
+          "attachments": ["suppressor", "flashlight", "extendedMag", "scope", "grip", "advancedScope"],
+          "requiredLevel": 25
+        },
+        "WEAPON_SPECIALCARBINE": {
+          "name": "Special Carbine",
+          "damage": 40,
+          "accuracy": 0.88,
+          "range": 220.0,
+          "fireRate": 520,
+          "magazineSize": 30,
+          "maxAmmo": 300,
+          "reloadTime": 2.1,
+          "price": 2500,
+          "attachments": ["suppressor", "flashlight", "extendedMag", "scope", "grip", "advancedScope"],
+          "requiredLevel": 30
+        }
+      }
+    },
+    "sniper": {
+      "label": "Sniper Rifles",
+      "maxRange": 500.0,
+      "accuracy": 0.95,
+      "weapons": {
+        "WEAPON_SNIPERRIFLE": {
+          "name": "Sniper Rifle",
+          "damage": 80,
+          "accuracy": 0.95,
+          "range": 400.0,
+          "fireRate": 100,
+          "magazineSize": 10,
+          "maxAmmo": 100,
+          "reloadTime": 3.0,
+          "price": 4000,
+          "attachments": ["suppressor", "advancedScope"],
+          "requiredLevel": 35
+        },
+        "WEAPON_HEAVYSNIPER": {
+          "name": "Heavy Sniper",
+          "damage": 120,
+          "accuracy": 0.98,
+          "range": 500.0,
+          "fireRate": 80,
+          "magazineSize": 6,
+          "maxAmmo": 50,
+          "reloadTime": 3.5,
+          "price": 5000,
+          "attachments": ["suppressor", "advancedScope"],
+          "requiredLevel": 40
+        }
+      }
+    },
+    "shotgun": {
+      "label": "Shotguns",
+      "maxRange": 30.0,
+      "accuracy": 0.5,
+      "weapons": {
+        "WEAPON_PUMPSHOTGUN": {
+          "name": "Pump Shotgun",
+          "damage": 60,
+          "accuracy": 0.5,
+          "range": 25.0,
+          "fireRate": 150,
+          "magazineSize": 8,
+          "maxAmmo": 150,
+          "reloadTime": 2.5,
+          "price": 1500,
+          "attachments": ["flashlight", "suppressor"],
+          "requiredLevel": 18
+        },
+        "WEAPON_ASSAULTSHOTGUN": {
+          "name": "Assault Shotgun",
+          "damage": 50,
+          "accuracy": 0.55,
+          "range": 30.0,
+          "fireRate": 300,
+          "magazineSize": 32,
+          "maxAmmo": 200,
+          "reloadTime": 2.0,
+          "price": 2000,
+          "attachments": ["flashlight", "suppressor", "extendedMag"],
+          "requiredLevel": 22
+        }
+      }
+    },
+    "lmg": {
+      "label": "Light Machine Guns",
+      "maxRange": 250.0,
+      "accuracy": 0.7,
+      "weapons": {
+        "WEAPON_MG": {
+          "name": "MG",
+          "damage": 45,
+          "accuracy": 0.7,
+          "range": 200.0,
+          "fireRate": 500,
+          "magazineSize": 54,
+          "maxAmmo": 500,
+          "reloadTime": 3.5,
+          "price": 3000,
+          "attachments": ["scope", "grip"],
+          "requiredLevel": 28
+        },
+        "WEAPON_COMBATMG": {
+          "name": "Combat MG",
+          "damage": 50,
+          "accuracy": 0.75,
+          "range": 250.0,
+          "fireRate": 450,
+          "magazineSize": 100,
+          "maxAmmo": 500,
+          "reloadTime": 4.0,
+          "price": 3500,
+          "attachments": ["scope", "grip", "extendedMag"],
+          "requiredLevel": 32
+        }
+      }
+    },
+    "explosive": {
+      "label": "Explosives",
+      "maxRange": 100.0,
+      "accuracy": 0.8,
+      "weapons": {
+        "WEAPON_RPG": {
+          "name": "RPG",
+          "damage": 200,
+          "accuracy": 0.8,
+          "range": 150.0,
+          "fireRate": 60,
+          "magazineSize": 1,
+          "maxAmmo": 10,
+          "reloadTime": 4.0,
+          "price": 8000,
+          "attachments": [],
+          "requiredLevel": 45
+        },
+        "WEAPON_GRENADELAUNCHER": {
+          "name": "Grenade Launcher",
+          "damage": 150,
+          "accuracy": 0.75,
+          "range": 100.0,
+          "fireRate": 120,
+          "magazineSize": 10,
+          "maxAmmo": 30,
+          "reloadTime": 3.0,
+          "price": 6000,
+          "attachments": ["flashlight", "scope"],
+          "requiredLevel": 42
+        }
+      }
+    }
+  }
+}

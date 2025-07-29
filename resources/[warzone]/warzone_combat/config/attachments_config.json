@@ -1,0 +1,109 @@
+{
+  "attachments": {
+    "suppressor": {
+      "name": "Suppressor",
+      "description": "Reduces weapon noise and muzzle flash",
+      "price": 150,
+      "effects": {
+        "damageMultiplier": 0.95,
+        "accuracyBonus": 0.1,
+        "rangeBonus": 0.05,
+        "stealthBonus": 0.8
+      },
+      "compatibleWeapons": ["pistol", "smg", "assault", "sniper"],
+      "weight": 0.2
+    },
+    "flashlight": {
+      "name": "Flashlight",
+      "description": "Illuminates dark areas",
+      "price": 50,
+      "effects": {
+        "accuracyBonus": 0.05,
+        "nightVisionBonus": 1.0
+      },
+      "compatibleWeapons": ["pistol", "smg", "assault", "shotgun", "lmg"],
+      "weight": 0.1
+    },
+    "extendedMag": {
+      "name": "Extended Magazine",
+      "description": "Increases magazine capacity",
+      "price": 100,
+      "effects": {
+        "magazineMultiplier": 1.5,
+        "reloadTimeMultiplier": 1.1
+      },
+      "compatibleWeapons": ["pistol", "smg", "assault", "lmg"],
+      "weight": 0.3
+    },
+    "scope": {
+      "name": "Scope",
+      "description": "Improves accuracy at range",
+      "price": 200,
+      "effects": {
+        "accuracyBonus": 0.2,
+        "rangeBonus": 0.3,
+        "zoomLevel": 2.0
+      },
+      "compatibleWeapons": ["assault", "sniper", "lmg"],
+      "weight": 0.4
+    },
+    "advancedScope": {
+      "name": "Advanced Scope",
+      "description": "High-precision optics with thermal vision",
+      "price": 500,
+      "effects": {
+        "accuracyBonus": 0.4,
+        "rangeBonus": 0.5,
+        "zoomLevel": 4.0,
+        "thermalVision": true
+      },
+      "compatibleWeapons": ["sniper"],
+      "weight": 0.6
+    },
+    "grip": {
+      "name": "Vertical Grip",
+      "description": "Reduces recoil and improves stability",
+      "price": 120,
+      "effects": {
+        "accuracyBonus": 0.15,
+        "recoilReduction": 0.3,
+        "stabilityBonus": 0.2
+      },
+      "compatibleWeapons": ["smg", "assault", "lmg"],
+      "weight": 0.2
+    },
+    "compensator": {
+      "name": "Muzzle Brake",
+      "description": "Reduces muzzle climb and recoil",
+      "price": 80,
+      "effects": {
+        "recoilReduction": 0.25,
+        "accuracyBonus": 0.1
+      },
+      "compatibleWeapons": ["pistol", "smg", "assault"],
+      "weight": 0.1
+    },
+    "laserSight": {
+      "name": "Laser Sight",
+      "description": "Improves hip-fire accuracy",
+      "price": 75,
+      "effects": {
+        "hipFireAccuracy": 0.3,
+        "aimSpeedBonus": 0.2
+      },
+      "compatibleWeapons": ["pistol", "smg", "shotgun"],
+      "weight": 0.1
+    }
+  },
+  "system": {
+    "maxAttachmentsPerWeapon": 4,
+    "installationTime": 2.0,
+    "removalTime": 1.5,
+    "durabilityLoss": 0.05,
+    "upgradeSystem": {
+      "enabled": true,
+      "maxLevel": 3,
+      "upgradeMultiplier": 1.2
+    }
+  }
+}

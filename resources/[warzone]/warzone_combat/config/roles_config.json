@@ -1,0 +1,96 @@
+{
+  "armor": {
+    "types": {
+      "light": {
+        "name": "Light Armor",
+        "protection": 25,
+        "weight": 1,
+        "speedPenalty": 0.0,
+        "price": 100,
+        "durability": 100,
+        "resistances": {
+          "bullet": 0.2,
+          "explosive": 0.1,
+          "melee": 0.15
+        }
+      },
+      "medium": {
+        "name": "Medium Armor",
+        "protection": 50,
+        "weight": 2,
+        "speedPenalty": 0.05,
+        "price": 200,
+        "durability": 150,
+        "resistances": {
+          "bullet": 0.4,
+          "explosive": 0.25,
+          "melee": 0.3
+        }
+      },
+      "heavy": {
+        "name": "Heavy Armor",
+        "protection": 100,
+        "weight": 3,
+        "speedPenalty": 0.1,
+        "price": 400,
+        "durability": 200,
+        "resistances": {
+          "bullet": 0.6,
+          "explosive": 0.5,
+          "melee": 0.5
+        }
+      },
+      "tactical": {
+        "name": "Tactical Vest",
+        "protection": 75,
+        "weight": 2,
+        "speedPenalty": 0.03,
+        "price": 350,
+        "durability": 175,
+        "resistances": {
+          "bullet": 0.5,
+          "explosive": 0.4,
+          "melee": 0.35
+        },
+        "specialAbilities": {
+          "extraAmmo": 1.5,
+          "fastReload": 1.2
+        }
+      }
+    },
+    "kits": {
+      "basicKit": {
+        "name": "Basic Armor Kit",
+        "repairAmount": 25,
+        "price": 50,
+        "weight": 0.5,
+        "useTime": 3.0
+      },
+      "advancedKit": {
+        "name": "Advanced Armor Kit",
+        "repairAmount": 50,
+        "price": 100,
+        "weight": 0.5,
+        "useTime": 2.0
+      },
+      "militaryKit": {
+        "name": "Military Armor Kit",
+        "repairAmount": 100,
+        "price": 200,
+        "weight": 0.5,
+        "useTime": 1.5
+      }
+    },
+    "system": {
+      "maxArmorKits": 3,
+      "maxArmor": 100,
+      "degradationRate": 0.1,
+      "repairCooldown": 5.0,
+      "sharedRepair": {
+        "enabled": true,
+        "range": 5.0,
+        "speedBonus": 1.5
+      }
+    }
+  }
+}

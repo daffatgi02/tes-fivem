@@ -1,0 +1,43 @@
+{
+  "combat": {
+    "general": {
+      "friendlyFire": true,
+      "damageMultiplier": 1.0,
+      "headshotMultiplier": 2.0,
+      "armorDamageReduction": 0.5,
+      "combatTimeout": 90,
+      "reviveTime": 8.0,
+      "bleedOutTime": 300
+    },
+    "zones": {
+      "greenZone": {
+        "damageMultiplier": 0.0,
+        "weaponsDisabled": true
+      },
+      "redZone": {
+        "damageMultiplier": 1.2,
+        "bonusReward": 1.5
+      },
+      "yellowZone": {
+        "damageMultiplier": 1.1,
+        "bonusReward": 1.2
+      }
+    },
+    "distance": {
+      "meleeRange": 2.0,
+      "closeRange": 15.0,
+      "mediumRange": 50.0,
+      "longRange": 150.0,
+      "extremeRange": 300.0
+    },
+    "penalties": {
+      "teamKill": {
+        "moneyLoss": 500,
+        "suspensionTime": 30
+      },
+      "suicide": {
+        "moneyLoss": 100
+      }
+    }
+  }
+}
