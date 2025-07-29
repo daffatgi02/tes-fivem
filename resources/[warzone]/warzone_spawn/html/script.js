@@ -10,6 +10,8 @@ class SpawnMapUI {
       crewNearby: false,
       hideFullLocations: false,
     };
+    this.queueStatus = null;
+    this.isPreviewMode = false;
 
     this.init();
   }
@@ -17,7 +19,28 @@ class SpawnMapUI {
   init() {
     this.bindEvents();
     this.setupFilters();
+    this.initializeUI();
     console.log("[SPAWN MAP] UI initialized");
+  }
+
+  initializeUI() {
+    // Set default strategy
+    const strategySelector = document.getElementById("spawnStrategy");
+    if (strategySelector) {
+      strategySelector.value = this.currentStrategy;
+    }
+
+    // Initialize filter checkboxes
+    Object.keys(this.filters).forEach(filterKey => {
+      const checkbox = document.getElementById(filterKey);
+      if (checkbox) {
+        checkbox.checked = this.filters[filterKey];
+      }
+    });
+
+    // Hide overlays initially
+    this.hideLoading();
+    this.hidePreview();
   }
 
   bindEvents() {
@@ -30,6 +53,30 @@ class SpawnMapUI {
     document.getElementById("spawnStrategy").addEventListener("change", (e) => {
       this.currentStrategy = e.target.value;
       this.updateStrategy();
+    });
+
+    // Filter checkboxes
+    Object.keys(this.filters).forEach(filterKey => {
+      const checkbox = document.getElementById(filterKey);
+      if (checkbox) {
+        checkbox.addEventListener("change", (e) => {
+          this.filters[filterKey] = e.target.checked;
+          this.applyFilters();
+        });
+      }
+    });
+
+    // Category filters
+    document.querySelectorAll(".category-filter").forEach(button => {
+      button.addEventListener("click", (e) => {
+        const categoryId = e.target.dataset.category;
+        this.filterLocationsByCategory(categoryId);
+        
+        // Update active state
+        document.querySelectorAll(".category-filter").forEach(btn => 
+          btn.classList.remove("active"));
+        e.target.classList.add("active");
+      });
     });
 
     // Action buttons
@@ -46,357 +93,337 @@ class SpawnMapUI {
     });
 
     // Preview overlay buttons
-    document
-      .getElementById("confirmPreviewBtn")
-      .addEventListener("click", () => {
-        this.confirmSpawn(this.selectedLocation);
-      });
+    document.getElementById("confirmPreviewBtn").addEventListener("click", () => {
+      this.confirmSpawn(this.selectedLocation);
+    });
 
-    document
-      .getElementById("cancelPreviewBtn")
-      .addEventListener("click", () => {
-        this.hidePreview();
+    document.getElementById("cancelPreviewBtn").addEventListener("click", () => {
+      this.hidePreview();
+      this.postMessage("stopPreview", {});
+    });
+
+    // Queue buttons
+    const joinQueueBtn = document.getElementById("joinQueueBtn");
+    const leaveQueueBtn = document.getElementById("leaveQueueBtn");
+
+    if (joinQueueBtn) {
+      joinQueueBtn.addEventListener("click", () => {
+        if (this.selectedLocation) {
+          this.joinQueue(this.selectedLocation);
+        }
       });
+    }
+
+    if (leaveQueueBtn) {
+      leaveQueueBtn.addEventListener("click", () => {
+        this.leaveQueue();
+      });
+    }
 
     // Keyboard shortcuts
     document.addEventListener("keydown", (e) => {
-      switch (e.key) {
-        case "Escape":
-          this.closeMap();
-          break;
-        case "Enter":
-          if (this.selectedLocation) {
-            this.confirmSpawn(this.selectedLocation);
-          }
-          break;
-        case "g":
-        case "G":
-          if (this.selectedLocation) {
-            this.previewLocation(this.selectedLocation);
-          }
-          break;
-      }
+      this.handleKeyboard(e);
     });
+
+    // Message listener for game events
+    window.addEventListener("message", (event) => {
+      this.handleGameMessage(event.data);
+    });
+  }
+
+  handleKeyboard(e) {
+    switch (e.key) {
+      case "Escape":
+        if (this.isPreviewMode) {
+          this.hidePreview();
+          this.postMessage("stopPreview", {});
+        } else {
+          this.closeMap();
+        }
+        break;
+      case "Enter":
+        if (this.selectedLocation) {
+          this.confirmSpawn(this.selectedLocation);
+        }
+        break;
+      case "g":
+      case "G":
+        if (this.selectedLocation && !this.isPreviewMode) {
+          this.previewLocation(this.selectedLocation);
+        }
+        break;
+      case "q":
+      case "Q":
+        if (this.selectedLocation && !this.queueStatus) {
+          this.joinQueue(this.selectedLocation);
+        } else if (this.queueStatus) {
+          this.leaveQueue();
+        }
+        break;
+    }
+  }
+
+  handleGameMessage(data) {
+    switch (data.type) {
+      case 'openSpawnMap':
+        this.openSpawnMap(data.data);
+        break;
+      case 'closeSpawnMap':
+        this.closeSpawnMap();
+        break;
+      case 'updateSpawnData':
+        this.updateSpawnData(data.data);
+        break;
+      case 'locationSelected':
+        this.locationSelected(data);
+        break;
+      case 'showLocationPreview':
+        this.showLocationPreview(data);
+        break;
+      case 'previewStarted':
+        this.isPreviewMode = true;
+        break;
+      case 'previewStopped':
+        this.isPreviewMode = false;
+        this.hidePreview();
+        break;
+      case 'showLoading':
+        this.showLoading(data.message);
+        break;
+      case 'hideLoading':
+        this.hideLoading();
+        break;
+      case 'updateQueueStatus':
+        this.updateQueueStatus(data.data);
+        break;
+      case 'hideQueueStatus':
+        this.hideQueueStatus();
+        break;
+      case 'updateLocationStats':
+        this.updateLocationStats(data.locationId, data.stats);
+        break;
+      case 'updateTacticalInfo':
+        this.updateTacticalInfo(data.data);
+        break;
+      case 'showQueueOption':
+        this.showQueueOption(data.data);
+        break;
+    }
   }
 
   setupFilters() {
-    // Filter checkboxes
-    document.getElementById("showSafeOnly").addEventListener("change", (e) => {
-      this.filters.safeOnly = e.target.checked;
-      this.filterLocations();
-    });
-
-    document
-      .getElementById("showCrewNearby")
-      .addEventListener("change", (e) => {
-        this.filters.crewNearby = e.target.checked;
-        this.filterLocations();
-      });
-
-    document
-      .getElementById("hideFullLocations")
-      .addEventListener("change", (e) => {
-        this.filters.hideFullLocations = e.target.checked;
-        this.filterLocations();
-      });
+    // Initialize filter UI components
+    this.updateFilterCounts();
   }
 
-  showMap(data) {
-    document.getElementById("spawnMap").style.display = "block";
-    document.getElementById("spawnMap").classList.add("fade-in");
-
-    this.currentLocations = data.locations;
-    this.playerData = data.playerData;
-
-    this.renderCategories();
-    this.renderLocations();
+  openSpawnMap(data) {
+    document.body.style.display = 'block';
+    this.currentLocations = data.locations || {};
+    this.populateLocationList(data.locations);
+    this.updatePlayerInfo(data.playerInfo);
     this.updateStats();
   }
 
-  hideMap() {
-    document.getElementById("spawnMap").style.display = "none";
+  closeSpawnMap() {
+    document.body.style.display = 'none';
     this.selectedLocation = null;
-    this.hideLocationDetails();
+    this.queueStatus = null;
+    this.isPreviewMode = false;
+    this.hideLoading();
+    this.hidePreview();
   }
 
-  renderCategories() {
-    const categoriesList = document.getElementById("categoriesList");
-    categoriesList.innerHTML = "";
+  populateLocationList(locations) {
+    const locationList = document.getElementById("locationList");
+    if (!locationList) return;
 
-    for (const [categoryId, category] of Object.entries(
-      this.currentLocations
-    )) {
-      const categoryElement = this.createCategoryElement(categoryId, category);
-      categoriesList.appendChild(categoryElement);
+    locationList.innerHTML = "";
+
+    Object.entries(locations).forEach(([categoryId, category]) => {
+      Object.entries(category.locations || {}).forEach(([locationId, location]) => {
+        const locationCard = this.createLocationCard(locationId, location, category.label);
+        locationList.appendChild(locationCard);
+
+        // Add to map if renderer is available
+        if (window.spawnMapRenderer) {
+          window.spawnMapRenderer.addLocationBlip(locationId, location);
+        }
+      });
+    });
+  }
+
+  createLocationCard(locationId, location, categoryLabel) {
+    const card = document.createElement("div");
+    card.className = "location-card";
+    card.dataset.locationId = locationId;
+    card.dataset.category = categoryLabel;
+    card.dataset.safetyLevel = location.safetyLevel || 'unknown';
+
+    const safetyClass = this.getSafetyClass(location.safetyLevel);
+    const nearbyPlayers = location.nearbyPlayers || 0;
+    const queueSize = location.queueSize || 0;
+
+    card.innerHTML = `
+      <div class="location-header">
+        <h3 class="location-name">${location.name}</h3>
+        <span class="location-category">${categoryLabel}</span>
+      </div>
+      <div class="location-info">
+        <div class="info-row">
+          <span class="info-label">Safety:</span>
+          <span class="safety-indicator ${safetyClass}">${this.formatSafetyLevel(location.safetyLevel)}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Players:</span>
+          <span class="player-count">${nearbyPlayers}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Queue:</span>
+          <span class="queue-count">${queueSize}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Distance:</span>
+          <span class="distance">${this.calculateDistance(location.coords)}m</span>
+        </div>
+      </div>
+      <div class="location-actions">
+        <button class="action-btn small preview-btn" onclick="spawnMapUI.previewLocation('${locationId}')">
+          👁️ Preview
+        </button>
+        <button class="action-btn small spawn-btn" onclick="spawnMapUI.selectLocation('${locationId}')">
+          📍 Select
+        </button>
+      </div>
+    `;
+
+    // Add click handler for card selection
+    card.addEventListener('click', () => {
+      this.selectLocation(locationId);
+    });
+
+    return card;
+  }
+
+  selectLocation(locationId) {
+    // Update visual selection
+    document.querySelectorAll('.location-card').forEach(card => {
+      card.classList.remove('selected');
+    });
+
+    const selectedCard = document.querySelector(`[data-location-id="${locationId}"]`);
+    if (selectedCard) {
+      selectedCard.classList.add('selected');
     }
-  }
 
-  createCategoryElement(categoryId, category) {
-    const categoryDiv = document.createElement("div");
-    categoryDiv.className = "category-item";
-    categoryDiv.dataset.category = categoryId;
-
-    const locationCount = Object.keys(category.locations).length;
-
-    categoryDiv.innerHTML = `
-            <div class="category-icon">${category.icon}</div>
-            <div class="category-info">
-                <h4>${category.label}</h4>
-                <span>${locationCount} locations</span>
-            </div>
-        `;
-
-    categoryDiv.addEventListener("click", () => {
-      this.selectCategory(categoryId);
-    });
-
-    return categoryDiv;
-  }
-
-  selectCategory(categoryId) {
-    // Update category selection
-    document.querySelectorAll(".category-item").forEach((item) => {
-      item.classList.remove("active");
-    });
-    document
-      .querySelector(`[data-category="${categoryId}"]`)
-      .classList.add("active");
-
-    // Filter locations by category
-    this.filterLocationsByCategory(categoryId);
-  }
-
-  renderLocations() {
-    const locationsList = document.getElementById("locationsList");
-    locationsList.innerHTML = "";
-
-    for (const [categoryId, category] of Object.entries(
-      this.currentLocations
-    )) {
-      for (const [locationId, location] of Object.entries(category.locations)) {
-        const locationElement = this.createLocationElement(
-          locationId,
-          location,
-          category
-        );
-        locationsList.appendChild(locationElement);
-      }
-    }
-  }
-
-  createLocationElement(locationId, location, category) {
-    const locationDiv = document.createElement("div");
-    locationDiv.className = "location-card";
-    locationDiv.dataset.locationId = locationId;
-    locationDiv.dataset.category = category.label;
-
-    // Calculate current capacity (simulate for demo)
-    const currentCapacity = Math.floor(Math.random() * location.maxCapacity);
-    const capacityPercentage = (currentCapacity / location.maxCapacity) * 100;
-
-    // Generate risk dots
-    const riskDots = Array.from(
-      { length: 5 },
-      (_, i) =>
-        `<div class="risk-dot ${i < location.riskLevel ? "active" : ""}"></div>`
-    ).join("");
-
-    locationDiv.innerHTML = `
-           <div class="location-header">
-               <div class="location-name">${location.name}</div>
-               <div class="risk-level">${riskDots}</div>
-           </div>
-           <div class="location-description">${location.description}</div>
-           <div class="location-stats">
-               <div class="location-capacity">
-                   <span>👥 ${currentCapacity}/${location.maxCapacity}</span>
-                   <div class="capacity-bar">
-                       <div class="capacity-fill" style="width: ${capacityPercentage}%"></div>
-                   </div>
-               </div>
-               <div class="location-roles">
-                   🎖️ ${
-                     location.recommendedRoles
-                       ? location.recommendedRoles.length
-                       : 0
-                   } roles
-               </div>
-           </div>
-       `;
-
-    // Add selection handler
-    locationDiv.addEventListener("click", () => {
-      this.selectLocation(locationId, location);
-    });
-
-    return locationDiv;
-  }
-
-  selectLocation(locationId, location) {
     this.selectedLocation = locationId;
 
-    // Update visual selection
-    document.querySelectorAll(".location-card").forEach((card) => {
-      card.classList.remove("selected", "pulse");
-    });
+    // Update action buttons
+    this.updateActionButtons();
 
-    const selectedCard = document.querySelector(
-      `[data-location-id="${locationId}"]`
-    );
-    if (selectedCard) {
-      selectedCard.classList.add("selected", "pulse");
+    // Update map selection
+    if (window.spawnMapRenderer) {
+      window.spawnMapRenderer.selectBlip(locationId);
     }
 
     // Show location details
-    this.showLocationDetails(locationId, location);
-
-    // Notify game
-    this.postMessage("selectLocation", { locationId });
+    this.showLocationDetails(locationId);
   }
 
-  showLocationDetails(locationId, location) {
-    const detailsPanel = document.getElementById("locationDetails");
-
-    // Update location name and description
-    document.getElementById("locationName").textContent = location.name;
-    document.getElementById("locationDescription").textContent =
-      location.description;
-
-    // Update risk bars
-    this.updateRiskBars(location.riskLevel || 1);
-
-    // Update advantages list
-    this.updateAdvantagesList(location.advantages || []);
-
-    // Update disadvantages list
-    this.updateDisadvantagesList(location.disadvantages || []);
-
-    // Update recommended roles
-    this.updateRecommendedRoles(location.recommendedRoles || []);
-
-    // Update location stats
-    this.updateLocationStats(location);
-
-    // Show details panel
-    detailsPanel.style.display = "block";
-    detailsPanel.classList.add("slide-up");
-  }
-
-  hideLocationDetails() {
-    document.getElementById("locationDetails").style.display = "none";
-  }
-
-  updateRiskBars(riskLevel) {
-    const riskBars = document.getElementById("riskBars");
-    riskBars.innerHTML = "";
-
-    for (let i = 1; i <= 5; i++) {
-      const bar = document.createElement("div");
-      bar.className = `risk-bar ${i <= riskLevel ? "filled" : ""}`;
-      riskBars.appendChild(bar);
-    }
-  }
-
-  updateAdvantagesList(advantages) {
-    const list = document.getElementById("advantagesList");
-    list.innerHTML = "";
-
-    advantages.forEach((advantage) => {
-      const li = document.createElement("li");
-      li.textContent = advantage;
-      list.appendChild(li);
+  showLocationDetails(locationId) {
+    // Find location data
+    let locationData = null;
+    Object.values(this.currentLocations).forEach(category => {
+      if (category.locations && category.locations[locationId]) {
+        locationData = category.locations[locationId];
+      }
     });
 
-    if (advantages.length === 0) {
-      list.innerHTML = "<li>No specific advantages listed</li>";
+    if (!locationData) return;
+
+    // Update details panel
+    const detailsPanel = document.querySelector('.location-details');
+    if (detailsPanel) {
+      detailsPanel.innerHTML = `
+        <h3>${locationData.name}</h3>
+        <div class="detail-stats">
+          <div class="stat-item">
+            <span class="stat-label">Coordinates:</span>
+            <span class="stat-value">${Math.round(locationData.coords.x)}, ${Math.round(locationData.coords.y)}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Elevation:</span>
+            <span class="stat-value">${Math.round(locationData.coords.z)}m</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Last Activity:</span>
+            <span class="stat-value">${locationData.lastActivity || 'Unknown'}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Spawn Success:</span>
+            <span class="stat-value">${locationData.successRate || 0}%</span>
+          </div>
+        </div>
+      `;
     }
   }
 
-  updateDisadvantagesList(disadvantages) {
-    const list = document.getElementById("disadvantagesList");
-    list.innerHTML = "";
+  updateActionButtons() {
+    const previewBtn = document.getElementById("previewBtn");
+    const spawnBtn = document.getElementById("spawnBtn");
 
-    disadvantages.forEach((disadvantage) => {
-      const li = document.createElement("li");
-      li.textContent = disadvantage;
-      list.appendChild(li);
-    });
-
-    if (disadvantages.length === 0) {
-      list.innerHTML = "<li>No significant disadvantages</li>";
+    if (this.selectedLocation) {
+      previewBtn.disabled = false;
+      spawnBtn.disabled = false;
+      previewBtn.textContent = "👁️ Preview Location";
+      spawnBtn.textContent = "🚁 Deploy Here";
+    } else {
+      previewBtn.disabled = true;
+      spawnBtn.disabled = true;
+      previewBtn.textContent = "👁️ Select Location";
+      spawnBtn.textContent = "🚁 Select Location";
     }
   }
 
-  updateRecommendedRoles(roles) {
-    const container = document.getElementById("recommendedRoles");
-    container.innerHTML = "";
+  applyFilters() {
+    const cards = document.querySelectorAll('.location-card');
 
-    if (roles.length === 0) {
-      container.innerHTML = '<span class="role-tag">All Roles</span>';
-      return;
-    }
+    cards.forEach(card => {
+      let showCard = true;
 
-    roles.forEach((role) => {
-      const tag = document.createElement("span");
-      tag.className = "role-tag";
-      tag.textContent = this.capitalizeRole(role);
-      container.appendChild(tag);
-    });
-  }
-
-  updateLocationStats(location) {
-    // Simulate real-time stats (in real implementation, get from server)
-    const currentCapacity = Math.floor(Math.random() * location.maxCapacity);
-    const successRate = Math.floor(Math.random() * 40) + 60; // 60-100%
-    const avgSurvival = Math.floor(Math.random() * 10) + 5; // 5-15 minutes
-
-    document.getElementById(
-      "locationCapacity"
-    ).textContent = `${currentCapacity}/${location.maxCapacity}`;
-    document.getElementById("successRate").textContent = `${successRate}%`;
-    document.getElementById("avgSurvival").textContent = `${avgSurvival}m`;
-  }
-
-  filterLocations() {
-    const locationCards = document.querySelectorAll(".location-card");
-
-    locationCards.forEach((card) => {
-      let visible = true;
-      const locationId = card.dataset.locationId;
-
-      // Apply filters
+      // Safe only filter
       if (this.filters.safeOnly) {
-        const riskDots = card.querySelectorAll(".risk-dot.active").length;
-        if (riskDots > 2) visible = false;
+        const safetyLevel = card.dataset.safetyLevel;
+        if (!['very_safe', 'safe'].includes(safetyLevel)) {
+          showCard = false;
+        }
       }
 
+      // Hide full locations filter
       if (this.filters.hideFullLocations) {
-        const capacityText = card.querySelector(
-          ".location-capacity span"
-        ).textContent;
-        const [current, max] = capacityText.match(/\d+/g).map(Number);
-        if (current >= max) visible = false;
+        const queueCount = parseInt(card.querySelector('.queue-count').textContent) || 0;
+        if (queueCount > 5) {
+          showCard = false;
+        }
       }
 
-      // Show/hide card
-      card.style.display = visible ? "block" : "none";
+      card.style.display = showCard ? 'block' : 'none';
     });
 
     this.updateStats();
+    this.updateFilterCounts();
   }
 
   filterLocationsByCategory(categoryId) {
-    const locationCards = document.querySelectorAll(".location-card");
+    const cards = document.querySelectorAll('.location-card');
 
-    if (categoryId === "all") {
-      locationCards.forEach((card) => (card.style.display = "block"));
+    if (categoryId === 'all') {
+      cards.forEach(card => card.style.display = 'block');
     } else {
       const category = this.currentLocations[categoryId];
-      const categoryLabel = category ? category.label : "";
+      const categoryLabel = category ? category.label : '';
 
-      locationCards.forEach((card) => {
-        card.style.display =
-          card.dataset.category === categoryLabel ? "block" : "none";
+      cards.forEach(card => {
+        card.style.display = card.dataset.category === categoryLabel ? 'block' : 'none';
       });
     }
 
@@ -404,139 +431,239 @@ class SpawnMapUI {
   }
 
   updateStats() {
-    const visibleCards = document.querySelectorAll(
-      '.location-card[style*="block"], .location-card:not([style])'
-    );
+    const visibleCards = document.querySelectorAll('.location-card[style*="block"], .location-card:not([style])');
     const availableCount = visibleCards.length;
 
-    // Simulate crew count
-    const crewCount = Math.floor(Math.random() * 5);
+    // Calculate crew count
+    const crewCount = this.calculateCrewNearby();
 
-    // Simulate zone activity
-    const activities = ["Low", "Normal", "High", "Extreme"];
-    const zoneActivity =
-      activities[Math.floor(Math.random() * activities.length)];
+    // Get zone activity
+    const zoneActivity = this.getCurrentZoneActivity();
 
-    document.getElementById("availableCount").textContent = availableCount;
-    document.getElementById("crewCount").textContent = crewCount;
-    document.getElementById("zoneActivity").textContent = zoneActivity;
+    // Update UI elements
+    this.updateElement('availableCount', availableCount);
+    this.updateElement('crewCount', crewCount);
+    this.updateElement('zoneActivity', zoneActivity);
   }
 
   updateStrategy() {
-    // Update UI to reflect strategy change
     const strategyColors = {
-      safe: "#4CAF50",
-      balanced: "#FF9800",
-      aggressive: "#F44336",
+      safe: '#4CAF50',
+      balanced: '#FF9800',
+      aggressive: '#F44336',
     };
 
-    const selector = document.getElementById("spawnStrategy");
-    selector.style.borderColor = strategyColors[this.currentStrategy];
+    const selector = document.getElementById('spawnStrategy');
+    if (selector) {
+      selector.style.borderColor = strategyColors[this.currentStrategy];
+    }
 
     // Notify game
-    this.postMessage("updateStrategy", { strategy: this.currentStrategy });
+    this.postMessage('updateStrategy', { strategy: this.currentStrategy });
   }
 
   previewLocation(locationId) {
+    if (!locationId) locationId = this.selectedLocation;
+    if (!locationId) return;
+
     this.showPreview();
-    this.postMessage("previewLocation", { locationId });
+    this.postMessage('previewLocation', { locationId });
   }
 
   confirmSpawn(locationId) {
-    this.showLoading();
-    this.postMessage("confirmSpawn", {
+    if (!locationId) locationId = this.selectedLocation;
+    if (!locationId) return;
+
+    this.showLoading('Processing spawn request...');
+    this.postMessage('confirmSpawn', {
       locationId,
       strategy: this.currentStrategy,
     });
   }
 
-  showLoading() {
-    document.getElementById("loadingOverlay").style.display = "flex";
+  joinQueue(locationId) {
+    if (!locationId) locationId = this.selectedLocation;
+    if (!locationId) return;
+
+    this.postMessage('joinQueue', { locationId });
   }
 
-  hideLoading() {
-    document.getElementById("loadingOverlay").style.display = "none";
+  leaveQueue() {
+    this.postMessage('leaveQueue', {});
   }
 
-  showPreview() {
-    document.getElementById("previewOverlay").style.display = "block";
-  }
-
-  hidePreview() {
-    document.getElementById("previewOverlay").style.display = "none";
-  }
-
-  locationSelected(data) {
-    // Handle location selection from game
-    if (data.locationData) {
-      this.showLocationDetails(data.locationId, data.locationData);
+  showLoading(message = 'Loading...') {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) {
+      loadingOverlay.style.display = 'flex';
+      const loadingText = loadingOverlay.querySelector('p');
+      if (loadingText) {
+        loadingText.textContent = message;
+      }
     }
   }
 
-  showLocationPreview(data) {
-    this.showPreview();
-    document.getElementById(
-      "previewInfo"
-    ).textContent = `Previewing ${data.locationData.name} - Use camera controls to look around`;
+  hideLoading() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) {
+      loadingOverlay.style.display = 'none';
+    }
   }
 
-  closeMap() {
-    this.postMessage("closeMap", {});
+  showPreview() {
+    const previewOverlay = document.getElementById('previewOverlay');
+    if (previewOverlay) {
+      previewOverlay.style.display = 'block';
+      this.isPreviewMode = true;
+    }
+  }
+
+  hidePreview() {
+    const previewOverlay = document.getElementById('previewOverlay');
+    if (previewOverlay) {
+      previewOverlay.style.display = 'none';
+      this.isPreviewMode = false;
+    }
+  }
+
+  updateQueueStatus(queueData) {
+    this.queueStatus = queueData;
+
+    // Update queue UI elements
+    const queueInfo = document.getElementById('queueInfo');
+    if (queueInfo) {
+      queueInfo.innerHTML = `
+        <div class="queue-status">
+          <h4>🕐 In Queue</h4>
+          <p>Position: ${queueData.position}/${queueData.queueSize}</p>
+          <p>Estimated wait: ${queueData.estimatedWait}s</p>
+          <button id="leaveQueueBtn" class="action-btn cancel">Leave Queue</button>
+        </div>
+      `;
+      queueInfo.style.display = 'block';
+    }
+  }
+
+  hideQueueStatus() {
+    this.queueStatus = null;
+    const queueInfo = document.getElementById('queueInfo');
+    if (queueInfo) {
+      queueInfo.style.display = 'none';
+    }
   }
 
   // Utility methods
-  capitalizeRole(role) {
-    return role.charAt(0).toUpperCase() + role.slice(1);
+  calculateDistance(coords) {
+    // Placeholder - you can implement actual distance calculation
+    return Math.floor(Math.random() * 1000) + 100;
   }
 
-  postMessage(type, data) {
-    fetch(`https://${GetParentResourceName()}/${type}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }).catch((error) => {
-      console.error("Failed to send message:", error);
+  calculateCrewNearby() {
+    // Placeholder - integrate with crew system
+    return Math.floor(Math.random() * 5);
+  }
+
+  getCurrentZoneActivity() {
+    const activities = ['Low', 'Normal', 'High', 'Extreme'];
+    return activities[Math.floor(Math.random() * activities.length)];
+  }
+
+  getSafetyClass(safetyLevel) {
+    const classes = {
+      'very_safe': 'safety-very-safe',
+      'safe': 'safety-safe',
+      'moderate': 'safety-moderate',
+      'dangerous': 'safety-dangerous',
+      'very_dangerous': 'safety-very-dangerous'
+    };
+    return classes[safetyLevel] || 'safety-unknown';
+  }
+
+  formatSafetyLevel(level) {
+    const formatted = {
+      'very_safe': 'Very Safe',
+      'safe': 'Safe',
+      'moderate': 'Moderate',
+      'dangerous': 'Dangerous',
+      'very_dangerous': 'Very Dangerous'
+    };
+    return formatted[level] || 'Unknown';
+  }
+
+  updateElement(id, value) {
+    const element = document.getElementById(id);
+    if (element) {
+      element.textContent = value;
+    }
+  }
+
+  updateFilterCounts() {
+    // Update filter button counts
+    Object.keys(this.filters).forEach(filterKey => {
+      const button = document.querySelector(`[data-filter="${filterKey}"]`);
+      if (button) {
+        const count = this.getFilterCount(filterKey);
+        button.querySelector('.filter-count').textContent = count;
+      }
     });
   }
 
-  // Handle escape key globally
-  handleEscape() {
-    this.closeMap();
+  getFilterCount(filterKey) {
+    // Calculate how many locations match this filter
+    const cards = document.querySelectorAll('.location-card');
+    let count = 0;
+
+    cards.forEach(card => {
+      let matches = false;
+
+      switch (filterKey) {
+        case 'safeOnly':
+          matches = ['very_safe', 'safe'].includes(card.dataset.safetyLevel);
+          break;
+        case 'crewNearby':
+          // Implement crew nearby logic
+          matches = Math.random() > 0.7; // Placeholder
+          break;
+        case 'hideFullLocations':
+          const queueCount = parseInt(card.querySelector('.queue-count').textContent) || 0;
+          matches = queueCount <= 5;
+          break;
+      }
+
+      if (matches) count++;
+    });
+
+    return count;
+  }
+
+  postMessage(type, data = {}) {
+    fetch(`https://${window.GetParentResourceName()}/${type}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    }).catch(error => {
+      console.error('[SPAWN MAP] PostMessage error:', error);
+    });
+  }
+
+  closeMap() {
+    this.postMessage('closeMap', {});
   }
 }
 
-// Initialize UI
-const spawnMapUI = new SpawnMapUI();
+// Initialize UI when DOM is loaded
+let spawnMapUI = null;
 
-// Message handlers from game
-window.addEventListener("message", (event) => {
-  const data = event.data;
-
-  switch (data.type) {
-    case "showSpawnMap":
-      spawnMapUI.showMap(data);
-      break;
-    case "hideSpawnMap":
-      spawnMapUI.hideMap();
-      break;
-    case "locationSelected":
-      spawnMapUI.locationSelected(data);
-      break;
-    case "showLocationPreview":
-      spawnMapUI.showLocationPreview(data);
-      break;
-    case "hideLoading":
-      spawnMapUI.hideLoading();
-      break;
-    case "hidePreview":
-      spawnMapUI.hidePreview();
-      break;
-  }
+document.addEventListener('DOMContentLoaded', () => {
+  spawnMapUI = new SpawnMapUI();
+  window.spawnMapUI = spawnMapUI;
 });
 
-// Handle resource unload
-window.addEventListener("beforeunload", () => {
-  spawnMapUI.closeMap();
+// Handle resource restart
+window.addEventListener('beforeunload', () => {
+  if (spawnMapUI) {
+    spawnMapUI.closeMap();
+  }
 });
