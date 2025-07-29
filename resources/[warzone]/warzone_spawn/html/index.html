@@ -1,0 +1,191 @@
+<!-- resources/[warzone]/warzone_spawn/html/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warzone Spawn Map</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="spawnMap" style="display: none;">
+        <div class="map-container">
+            <!-- Header -->
+            <div class="map-header">
+                <h1>🗺️ TACTICAL DEPLOYMENT MAP</h1>
+                <div class="header-controls">
+                    <select id="spawnStrategy" class="strategy-selector">
+                        <option value="safe">🛡️ Safe Strategy</option>
+                        <option value="balanced" selected>⚖️ Balanced Strategy</option>
+                        <option value="aggressive">⚔️ Aggressive Strategy</option>
+                    </select>
+                    <button id="closeMapBtn" class="close-btn">✖</button>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="map-content">
+                <!-- Categories Panel -->
+                <div class="categories-panel">
+                    <h3>📍 Location Categories</h3>
+                    <div id="categoriesList" class="categories-list">
+                        <!-- Categories will be populated here -->
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="filters-section">
+                        <h4>🔍 Filters</h4>
+                        <div class="filter-group">
+                            <label>
+                                <input type="checkbox" id="showSafeOnly" />
+                                Safe zones only
+                            </label>
+                            <label>
+                                <input type="checkbox" id="showCrewNearby" />
+                                Crew members nearby
+                            </label>
+                            <label>
+                                <input type="checkbox" id="hideFullLocations" />
+                                Hide full locations
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="quick-stats">
+                        <h4>📊 Quick Stats</h4>
+                        <div class="stat-item">
+                            <span>Available Locations:</span>
+                            <span id="availableCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Crew Members Online:</span>
+                            <span id="crewCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Current Zone Activity:</span>
+                            <span id="zoneActivity">Normal</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Locations Grid -->
+                <div class="locations-grid">
+                    <div id="locationsList" class="locations-list">
+                        <!-- Locations will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Location Details Panel -->
+                <div class="location-details" id="locationDetails" style="display: none;">
+                    <div class="details-header">
+                        <h3 id="locationName">Location Name</h3>
+                        <div class="risk-indicator">
+                            <span>Risk Level:</span>
+                            <div class="risk-bars" id="riskBars">
+                                <!-- Risk bars will be generated -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="details-content">
+                        <div class="location-info">
+                            <p id="locationDescription">Location description</p>
+                            
+                            <div class="info-section">
+                                <h4>✅ Advantages</h4>
+                                <ul id="advantagesList"></ul>
+                            </div>
+
+                            <div class="info-section">
+                                <h4>❌ Disadvantages</h4>
+                                <ul id="disadvantagesList"></ul>
+                            </div>
+
+                            <div class="info-section">
+                                <h4>🎖️ Recommended Roles</h4>
+                                <div id="recommendedRoles" class="role-tags"></div>
+                            </div>
+
+                            <div class="location-stats">
+                                <div class="stat-item">
+                                    <span>👥 Capacity:</span>
+                                    <span id="locationCapacity">0/8</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>📊 Success Rate:</span>
+                                    <span id="successRate">0%</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>⏱️ Avg. Survival:</span>
+                                    <span id="avgSurvival">0m</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button id="previewBtn" class="action-btn preview-btn">
+                                👁️ Preview Location
+                            </button>
+                            <button id="spawnBtn" class="action-btn spawn-btn">
+                                🚁 Deploy Here
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls Help -->
+            <div class="controls-help">
+                <div class="help-item">
+                    <kbd>F4</kbd>
+                    <span>Open/Close Map</span>
+                </div>
+                <div class="help-item">
+                    <kbd>Click</kbd>
+                    <span>Select Location</span>
+                </div>
+                <div class="help-item">
+                    <kbd>G</kbd>
+                    <span>Preview Location</span>
+                </div>
+                <div class="help-item">
+                    <kbd>Enter</kbd>
+                    <span>Confirm Spawn</span>
+                </div>
+                <div class="help-item">
+                    <kbd>ESC</kbd>
+                    <span>Close Map</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <p>Processing spawn request...</p>
+            </div>
+        </div>
+
+        <!-- Preview Overlay -->
+        <div id="previewOverlay" class="preview-overlay" style="display: none;">
+            <div class="preview-content">
+                <h3>📹 Location Preview</h3>
+                <p id="previewInfo">Previewing location...</p>
+                <div class="preview-controls">
+                    <button id="confirmPreviewBtn" class="preview-btn confirm">
+                        ✅ Deploy Here
+                    </button>
+                    <button id="cancelPreviewBtn" class="preview-btn cancel">
+                        ❌ Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="map.js"></script>
+</body>
+</html>

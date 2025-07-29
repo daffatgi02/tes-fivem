@@ -1,0 +1,184 @@
+{
+  "categories": {
+    "urban": {
+      "label": "Urban Areas",
+      "icon": "🏙️",
+      "color": "#4CAF50",
+      "description": "City locations with cover and tactical advantages",
+      "riskLevel": 2,
+      "locations": {
+        "downtown_ls": {
+          "name": "Downtown Los Santos",
+          "coords": {"x": 228.86, "y": -763.25, "z": 30.89, "w": 160.0},
+          "safetyRadius": 30.0,
+          "description": "Urban warfare environment",
+          "advantages": ["High cover", "Multiple escape routes", "Weapon shops nearby"],
+          "disadvantages": ["High traffic", "Limited sniping positions"],
+          "recommendedRoles": ["assault", "support"],
+          "maxCapacity": 8,
+          "spawnPoints": [
+            {"x": 228.86, "y": -763.25, "z": 30.89, "w": 160.0},
+            {"x": 215.23, "y": -741.89, "z": 33.56, "w": 180.0},
+            {"x": 241.56, "y": -785.12, "z": 29.45, "w": 140.0}
+          ]
+        },
+        "vespucci_beach": {
+          "name": "Vespucci Beach",
+          "coords": {"x": -1371.23, "y": -1237.45, "z": 4.28, "w": 35.0},
+          "safetyRadius": 25.0,
+          "description": "Open beach area with long sightlines",
+          "advantages": ["Open terrain", "Beach access", "Minimal cover for enemies"],
+          "disadvantages": ["Little cover", "Exposed position"],
+          "recommendedRoles": ["recon", "medic"],
+          "maxCapacity": 6,
+          "spawnPoints": [
+            {"x": -1371.23, "y": -1237.45, "z": 4.28, "w": 35.0},
+            {"x": -1392.67, "y": -1254.78, "z": 4.12, "w": 45.0},
+            {"x": -1349.89, "y": -1220.34, "z": 4.56, "w": 25.0}
+          ]
+        }
+      }
+    },
+    "industrial": {
+      "label": "Industrial Zones",
+      "icon": "🏭",
+      "color": "#FF9800",
+      "description": "Factory and warehouse areas",
+      "riskLevel": 3,
+      "locations": {
+        "port_ls": {
+          "name": "Los Santos Port",
+          "coords": {"x": 1194.45, "y": -3253.67, "z": 5.79, "w": 270.0},
+          "safetyRadius": 40.0,
+          "description": "Industrial port with containers",
+          "advantages": ["Heavy cover", "Vertical positions", "Vehicle access"],
+          "disadvantages": ["Limited escape routes", "Chokepoints"],
+          "recommendedRoles": ["assault", "support"],
+          "maxCapacity": 10,
+          "spawnPoints": [
+            {"x": 1194.45, "y": -3253.67, "z": 5.79, "w": 270.0},
+            {"x": 1175.23, "y": -3281.45, "z": 5.79, "w": 290.0},
+            {"x": 1213.67, "y": -3225.89, "z": 5.79, "w": 250.0}
+          ]
+        },
+        "elysian_island": {
+          "name": "Elysian Island",
+          "coords": {"x": 338.45, "y": -2715.67, "z": 5.23, "w": 180.0},
+          "safetyRadius": 35.0,
+          "description": "Island industrial complex",
+          "advantages": ["Island isolation", "Industrial cover", "Strategic position"],
+          "disadvantages": ["Limited access", "Easy to trap"],
+          "recommendedRoles": ["recon", "assault"],
+          "maxCapacity": 8,
+          "spawnPoints": [
+            {"x": 338.45, "y": -2715.67, "z": 5.23, "w": 180.0},
+            {"x": 352.78, "y": -2689.34, "z": 5.67, "w": 160.0},
+            {"x": 324.12, "y": -2741.89, "z": 4.89, "w": 200.0}
+          ]
+        }
+      }
+    },
+    "military": {
+      "label": "Military Zones",
+      "icon": "🎖️",
+      "color": "#F44336",
+      "description": "High-risk military installations",
+      "riskLevel": 5,
+      "locations": {
+        "zancudo_perimeter": {
+          "name": "Fort Zancudo Perimeter",
+          "coords": {"x": -2012.265, "y": 2956.010, "z": 32.810, "w": 0.0},
+          "safetyRadius": 50.0,
+          "description": "Military base exterior - extreme risk",
+          "advantages": ["Military equipment nearby", "Strategic value", "High reward potential"],
+          "disadvantages": ["Extreme danger", "Military response", "Limited cover"],
+          "recommendedRoles": ["recon", "assault"],
+          "maxCapacity": 4,
+          "restrictedAccess": true,
+          "minimumLevel": 25,
+          "spawnPoints": [
+            {"x": -2012.265, "y": 2956.010, "z": 32.810, "w": 0.0},
+            {"x": -1995.45, "y": 2973.67, "z": 31.89, "w": 20.0},
+            {"x": -2028.78, "y": 2938.23, "z": 33.45, "w": 340.0}
+          ]
+        },
+        "humane_labs": {
+          "name": "Humane Labs Research",
+          "coords": {"x": 3525.495, "y": 3705.301, "z": 36.652, "w": 180.0},
+          "safetyRadius": 45.0,
+          "description": "Research facility - high tech area",
+          "advantages": ["Advanced equipment", "Research materials", "Defensive positions"],
+          "disadvantages": ["Security systems", "Limited access", "Isolation"],
+          "recommendedRoles": ["recon", "medic"],
+          "maxCapacity": 6,
+          "restrictedAccess": true,
+          "minimumLevel": 30,
+          "spawnPoints": [
+            {"x": 3525.495, "y": 3705.301, "z": 36.652, "w": 180.0},
+            {"x": 3541.23, "y": 3689.78, "z": 35.89, "w": 200.0},
+            {"x": 3509.67, "y": 3720.45, "z": 37.23, "w": 160.0}
+          ]
+        }
+      }
+    },
+    "remote": {
+      "label": "Remote Areas",
+      "icon": "🏔️",
+      "color": "#795548",
+      "description": "Isolated locations for strategic spawning",
+      "riskLevel": 1,
+      "locations": {
+        "mount_chiliad": {
+          "name": "Mount Chiliad",
+          "coords": {"x": 501.23, "y": 5593.45, "z": 797.32, "w": 90.0},
+          "safetyRadius": 20.0,
+          "description": "Mountain peak with panoramic views",
+          "advantages": ["High elevation", "Sniper positions", "360° visibility"],
+          "disadvantages": ["Exposed position", "Limited cover", "Long distance to combat"],
+          "recommendedRoles": ["recon"],
+          "maxCapacity": 4,
+          "spawnPoints": [
+            {"x": 501.23, "y": 5593.45, "z": 797.32, "w": 90.0},
+            {"x": 485.67, "y": 5577.89, "z": 794.56, "w": 110.0},
+            {"x": 516.89, "y": 5608.12, "z": 799.78, "w": 70.0}
+          ]
+        },
+        "paleto_cove": {
+          "name": "Paleto Cove",
+          "coords": {"x": -1574.23, "y": 5181.67, "z": 19.45, "w": 270.0},
+          "safetyRadius": 30.0,
+          "description": "Secluded coastal area",
+          "advantages": ["Isolation", "Water access", "Natural cover"],
+          "disadvantages": ["Limited equipment", "Far from action", "Predictable routes"],
+          "recommendedRoles": ["medic", "support"],
+          "maxCapacity": 6,
+          "spawnPoints": [
+            {"x": -1574.23, "y": 5181.67, "z": 19.45, "w": 270.0},
+            {"x": -1592.78, "y": 5165.34, "z": 18.89, "w": 290.0},
+            {"x": -1555.67, "y": 5197.89, "z": 20.12, "w": 250.0}
+          ]
+        }
+      }
+    }
+  },
+  "dynamic": {
+    "adaptiveSpawning": {
+      "enabled": true,
+      "learningRate": 0.1,
+      "adaptationThreshold": 10,
+      "memoryDuration": 3600
+    },
+    "crowdControl": {
+      "enabled": true,
+      "maxPlayersPerLocation": 8,
+      "redistributionThreshold": 6,
+      "cooldownPeriod": 300
+    },
+    "tacticalSpawning": {
+      "considerCrewPositions": true,
+      "avoidEnemyConcentrations": true,
+      "balanceSpreadRatio": 0.7,
+      "strategicValueWeight": 0.3
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "spawn": {
+    "general": {
+      "respawnTime": 10,
+      "spawnProtectionTime": 15,
+      "maxSpawnDistance": 1000.0,
+      "minSpawnDistance": 50.0,
+      "safetyCheckRadius": 25.0,
+      "queueTimeout": 30
+    },
+    "safety": {
+      "minDistanceFromEnemies": 100.0,
+      "minDistanceFromCombat": 150.0,
+      "greenZoneOnly": false,
+      "vehicleCheckRadius": 20.0,
+      "maxPlayersNearby": 3,
+      "heightCheckRadius": 10.0
+    },
+    "strategic": {
+      "prioritizeCrewSpawns": true,
+      "balanceTeamSpawns": true,
+      "avoidCrowdedAreas": true,
+      "considerZoneActivity": true,
+      "adaptToPlayerBehavior": true
+    },
+    "ui": {
+      "mapZoomLevel": 3,
+      "showEnemyActivity": false,
+      "showCrewMembers": true,
+      "showZoneInfo": true,
+      "previewDuration": 5.0,
+      "fadeTransitionTime": 2.0
+    },
+    "queue": {
+      "enabled": true,
+      "maxQueueSize": 10,
+      "timeoutSeconds": 30,
+      "retryAttempts": 3,
+      "prioritySystem": {
+        "crewMembers": 3,
+        "premiumPlayers": 2,
+        "regularPlayers": 1
+      }
+    },
+    "analytics": {
+      "trackSpawnTimes": true,
+      "trackSpawnSuccess": true,
+      "trackPlayerPreferences": true,
+      "heatmapGeneration": true,
+      "adaptiveAlgorithm": true
+    }
+  }
+}
