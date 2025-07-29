@@ -24,7 +24,7 @@ function WarzoneSpawnUI.SetupKeybinds()
     end, false)
     
     -- Additional dev commands
-    if Config.Debug then
+    if Config and Config.Debug then
         RegisterCommand('spawnhere', function()
             local playerPed = PlayerPedId()
             local coords = GetEntityCoords(playerPed)

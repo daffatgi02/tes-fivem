@@ -60,3 +60,50 @@ Config.Roles = {
         weaponAccess = {"sniper", "assault", "pistol"}
     }
 }
+-- General gamemode settings
+Config.Gamemode = {
+    name = "Warzone Indonesia",
+    version = "1.0.0",
+    maxPlayers = 128,
+    minPlayers = 1,
+    respawnTime = 15,
+    protectionTime = 10
+}
+
+-- Debug settings
+Config.Debug = true
+
+-- Database settings
+Config.Database = {
+    enableLogging = true,
+    logLevel = 'info',
+    connectionTimeout = 10000
+}
+
+-- UI Settings
+Config.UI = {
+    showCoords = Config.Debug,
+    showFPS = Config.Debug,
+    showHealth = true,
+    showArmor = true,
+    showMoney = true
+}
+
+-- Performance settings
+Config.Performance = {
+    updateInterval = 1000,
+    cleanupInterval = 300000,
+    maxDistance = 1000.0
+}
+
+-- Player settings
+Config.Player = {
+    startingMoney = 5000,
+    startingHealth = 200,
+    startingArmor = 0,
+    enablePvP = true,
+    enableNametags = true
+}
+
+-- Exports
+_G.Config = Config

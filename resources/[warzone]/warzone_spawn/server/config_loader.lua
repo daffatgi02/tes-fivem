@@ -87,11 +87,18 @@ Citizen.CreateThread(function()
 end)
 
 -- Server callback for client configs
-ESX.RegisterServerCallback('warzone_spawn:getConfigs', function(source, cb)
-    cb({
-        spawn = WarzoneSpawnConfig.GetSpawn(),
-        locations = WarzoneSpawnConfig.GetLocations()
-    })
+Citizen.CreateThread(function()
+    while ESX == nil do
+        TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+        Citizen.Wait(0)
+    end
+    
+    ESX.RegisterServerCallback('warzone_spawn:getConfigs', function(source, cb)
+        cb({
+            spawn = WarzoneSpawnConfig.GetSpawn(),
+            locations = WarzoneSpawnConfig.GetLocations()
+        })
+    end)
 end)
 
 -- Admin command to reload configs
@@ -104,3 +111,18 @@ end, false, {help = 'Reload spawn configuration files'})
 exports('GetSpawnConfig', WarzoneSpawnConfig.GetSpawn)
 exports('GetLocationsConfig', WarzoneSpawnConfig.GetLocations)
 exports('ReloadConfig', WarzoneSpawnConfig.Reload)
+
+Citizen.CreateThread(function()
+    while ESX == nil do
+        TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+        Citizen.Wait(0)
+    end
+    
+    -- Register callbacks after ESX is ready
+    ESX.RegisterServerCallback('warzone_spawn:getConfigs', function(source, cb)
+        cb({
+            spawn = WarzoneSpawnConfig.GetSpawn(),
+            locations = WarzoneSpawnConfig.GetLocations()
+        })
+    end)
+end)

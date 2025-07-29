@@ -375,10 +375,6 @@ function WarzoneSpawnSafety.UpdateCombatStatus()
                 inCombat = true
             end
             
-            -- Check if player is shooting
-            if IsPedShooting(playerPed) then
-                inCombat = true
-            end
             
             -- Check if player recently took damage
             if GetEntityHealth(playerPed) < 200 then

@@ -1,155 +1,173 @@
 -- resources/[warzone]/warzone_core/server/main.lua
-ESX = nil
-TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
--- Initialize Warzone Framework
-Citizen.CreateThread(function()
+WarzoneCore = {}
+WarzonePlayer = {}
+
+-- Initialize core system
+function WarzoneCore.Init()
+    print("^2[WARZONE CORE] Initializing core system...^7")
+    
+    -- Wait for ESX
     while ESX == nil do
-        Citizen.Wait(10)
+        TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+        Citizen.Wait(0)
     end
     
-    -- Initialize Database
-    WarzoneDB.Init()
+    -- Initialize database
+    WarzoneCore.InitDatabase()
     
-    print("^2[WARZONE]^7 Server initialized successfully!")
-    print("^2[WARZONE]^7 Framework: ESX Legacy")
-    print("^2[WARZONE]^7 Gamemode: Tactical Warfare")
-end)
+    -- Setup player management
+    WarzoneCore.SetupPlayerEvents()
+    
+    print("^2[WARZONE CORE] Core system initialized successfully!^7")
+end
 
--- Player Connection Handler
-AddEventHandler('esx:playerLoaded', function(playerId, xPlayer)
+-- Initialize database tables
+function WarzoneCore.InitDatabase()
+    local queries = {
+        [[CREATE TABLE IF NOT EXISTS warzone_players (
+            identifier VARCHAR(50) PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            kills INT DEFAULT 0,
+            deaths INT DEFAULT 0,
+            credits INT DEFAULT 5000,
+            playtime INT DEFAULT 0,
+            last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            data JSON DEFAULT '{}'
+        )]],
+        
+        [[CREATE TABLE IF NOT EXISTS warzone_crews (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(50) UNIQUE NOT NULL,
+            leader VARCHAR(50) NOT NULL,
+            members JSON DEFAULT '[]',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            data JSON DEFAULT '{}'
+        )]],
+        
+        [[CREATE TABLE IF NOT EXISTS warzone_statistics (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            player_id VARCHAR(50) NOT NULL,
+            event_type VARCHAR(50) NOT NULL,
+            event_data JSON DEFAULT '{}',
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )]]
+    }
+    
+    for _, query in ipairs(queries) do
+        MySQL.query(query, {}, function(result)
+            if result then
+                WarzoneUtils.Log('info', 'Database table created/verified')
+            end
+        end)
+    end
+end
+
+-- Setup player events
+function WarzoneCore.SetupPlayerEvents()
+    -- Player connecting
+    AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
+        local source = source
+        local identifier = ESX.GetIdentifier(source)
+        
+        WarzoneUtils.Log('info', 'Player %s (%s) connecting...', name, identifier)
+    end)
+    
+    -- Player joined
+    AddEventHandler('esx:playerLoaded', function(playerId, xPlayer)
+        WarzonePlayer.Load(playerId, xPlayer)
+    end)
+    
+    -- Player left
+    AddEventHandler('esx:playerDropped', function(playerId, reason)
+        WarzonePlayer.Unload(playerId)
+    end)
+end
+
+-- Player management
+function WarzonePlayer.Load(playerId, xPlayer)
     local identifier = xPlayer.identifier
     
-    -- Check if player exists in warzone database
-    local warzonePlayer = WarzoneDB.GetPlayer(identifier)
-    
-    if not warzonePlayer then
-        -- New player - create warzone profile
-        TriggerClientEvent('warzone:showCharacterCreation', playerId)
-    else
-        -- Existing player - load data
-        WarzonePlayer.Load(playerId, warzonePlayer)
-        WarzoneDB.StartSession(identifier)
-        
-        if Config.Debug then
-            print(string.format("[WARZONE] Player loaded: %s#%s", warzonePlayer.nickname, warzonePlayer.tag))
+    -- Load player data from database
+    MySQL.single('SELECT * FROM warzone_players WHERE identifier = ?', {identifier}, function(result)
+        if result then
+            -- Player exists, load data
+            WarzonePlayer[playerId] = {
+                identifier = identifier,
+                name = xPlayer.getName(),
+                kills = result.kills or 0,
+                deaths = result.deaths or 0,
+                credits = result.credits or 5000,
+                playtime = result.playtime or 0,
+                data = json.decode(result.data) or {}
+            }
+        else
+            -- New player, create record
+            WarzonePlayer[playerId] = {
+                identifier = identifier,
+                name = xPlayer.getName(),
+                kills = 0,
+                deaths = 0,
+                credits = 5000,
+                playtime = 0,
+                data = {}
+            }
+            
+            MySQL.insert('INSERT INTO warzone_players (identifier, name) VALUES (?, ?)', {
+                identifier, xPlayer.getName()
+            })
         end
-    end
-end)
+        
+        WarzoneUtils.Log('info', 'Player %s loaded successfully', xPlayer.getName())
+        TriggerClientEvent('warzone_core:playerLoaded', playerId, WarzonePlayer[playerId])
+    end)
+end
 
--- Player Disconnect Handler
-AddEventHandler('esx:playerDropped', function(playerId, reason)
-    local xPlayer = ESX.GetPlayerFromId(playerId)
-    if xPlayer then
-        WarzoneDB.EndSession(xPlayer.identifier)
+function WarzonePlayer.Unload(playerId)
+    if WarzonePlayer[playerId] then
         WarzonePlayer.Save(playerId)
+        WarzonePlayer[playerId] = nil
+        WarzoneUtils.Log('info', 'Player %s unloaded', playerId)
+    end
+end
+
+function WarzonePlayer.Save(playerId)
+    local playerData = WarzonePlayer[playerId]
+    if not playerData then return end
+    
+    MySQL.update('UPDATE warzone_players SET kills = ?, deaths = ?, credits = ?, playtime = ?, data = ? WHERE identifier = ?', {
+        playerData.kills,
+        playerData.deaths, 
+        playerData.credits,
+        playerData.playtime,
+        json.encode(playerData.data),
+        playerData.identifier
+    })
+end
+
+-- Export functions
+exports('GetPlayerData', function(playerId)
+    return WarzonePlayer[playerId]
+end)
+
+exports('SavePlayerData', function(playerId)
+    return WarzonePlayer.Save(playerId)
+end)
+
+-- Initialize when resource starts
+Citizen.CreateThread(function()
+    WarzoneCore.Init()
+end)
+
+-- Auto-save players every 5 minutes
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(300000) -- 5 minutes
         
-        if Config.Debug then
-            print(string.format("[WARZONE] Player disconnected: %s", xPlayer.identifier))
+        for playerId, _ in pairs(WarzonePlayer) do
+            WarzonePlayer.Save(playerId)
         end
+        
+        WarzoneUtils.Log('info', 'Auto-saved all player data')
     end
 end)
-
--- Character Creation Handler
-RegisterNetEvent('warzone:createCharacter')
-AddEventHandler('warzone:createCharacter', function(nickname, tag)
-    local _source = source
-    local xPlayer = ESX.GetPlayerFromId(_source)
-    
-    if not xPlayer then return end
-    
-    -- Validate input
-    if not nickname or not tag then
-        TriggerClientEvent('esx:showNotification', _source, '❌ Nickname dan Tag harus diisi!')
-        return
-    end
-    
-    -- Validate nickname length
-    if string.len(nickname) < 3 or string.len(nickname) > 20 then
-        TriggerClientEvent('esx:showNotification', _source, '❌ Nickname harus 3-20 karakter!')
-        return
-    end
-    
-    -- Validate tag length
-    if string.len(tag) < 2 or string.len(tag) > 6 then
-        TriggerClientEvent('esx:showNotification', _source, '❌ Tag harus 2-6 karakter!')
-        return
-    end
-    
-    -- Check if nickname#tag already exists
-    if WarzoneDB.CheckNicknameTag(nickname, tag) then
-        TriggerClientEvent('esx:showNotification', _source, '❌ Nickname#Tag sudah digunakan!')
-        return
-    end
-    
-    -- Create player
-    if WarzoneDB.CreatePlayer(xPlayer.identifier, nickname, tag) then
-        local warzonePlayer = WarzoneDB.GetPlayer(xPlayer.identifier)
-        WarzonePlayer.Load(_source, warzonePlayer)
-        WarzoneDB.StartSession(xPlayer.identifier)
-        
-        TriggerClientEvent('esx:showNotification', _source, '✅ Karakter berhasil dibuat!')
-        TriggerClientEvent('warzone:characterCreated', _source)
-    else
-        TriggerClientEvent('esx:showNotification', _source, '❌ Gagal membuat karakter!')
-    end
-end)
-
--- Command: Set player role
-ESX.RegisterCommand('setrole', 'admin', function(xPlayer, args, showError)
-    local targetId = args.playerId.source
-    local role = args.role
-    
-    if not Config.Roles[role] then
-        return showError('Role tidak valid! Available: assault, support, medic, recon')
-    end
-    
-    local targetPlayer = WarzonePlayer.GetBySource(targetId)
-    if targetPlayer then
-        targetPlayer.role = role
-        WarzoneDB.UpdatePlayer(targetPlayer.identifier, {current_role = role})
-        
-        TriggerClientEvent('esx:showNotification', targetId, 
-            string.format('🎖️ Role diubah menjadi: %s', Config.Roles[role].label))
-        TriggerClientEvent('esx:showNotification', xPlayer.source, 
-            string.format('✅ Role %s diubah menjadi: %s', targetPlayer.nickname, Config.Roles[role].label))
-    end
-end, true, {
-    help = 'Set player role',
-    validate = true,
-    arguments = {
-        {name = 'playerId', help = 'Player ID', type = 'player'},
-        {name = 'role', help = 'Role name (assault/support/medic/recon)', type = 'string'}
-    }
-})
-
--- Command: Check player stats
-ESX.RegisterCommand('stats', 'user', function(xPlayer, args, showError)
-    local targetId = args.playerId and args.playerId.source or xPlayer.source
-    local targetPlayer = WarzonePlayer.GetBySource(targetId)
-    
-    if targetPlayer then
-        local kd = targetPlayer.deaths > 0 and (targetPlayer.kills / targetPlayer.deaths) or targetPlayer.kills
-        local message = string.format([[
-📊 STATISTICS - %s#%s
-🎖️ Role: %s
-💀 Kills: %d | Deaths: %d | K/D: %.2f
-💰 Money: $%d
-👥 Crew: %s
-        ]], 
-            targetPlayer.nickname, targetPlayer.tag,
-            Config.Roles[targetPlayer.role].label,
-            targetPlayer.kills, targetPlayer.deaths, kd,
-            targetPlayer.money,
-            targetPlayer.crew_id and "Yes" or "None"
-        )
-        
-        TriggerClientEvent('esx:showNotification', xPlayer.source, message)
-    end
-end, true, {
-    help = 'Check player statistics',
-    validate = false,
-    arguments = {
-        {name = 'playerId', help = 'Player ID (optional)', type = 'player'}
-    }
-})
