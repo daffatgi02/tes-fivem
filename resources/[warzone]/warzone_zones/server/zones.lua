@@ -270,8 +270,16 @@ function WarzoneZones.GetZoneStates()
     return states
 end
 
--- Initialize when server starts
+ESX = nil
+TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+
+-- Wait for ESX to be ready before initializing
 Citizen.CreateThread(function()
+    while ESX == nil do
+        Citizen.Wait(10)
+    end
+    
+    -- Wait for warzone_core to be ready
     while GetResourceState('warzone_core') ~= 'started' do
         Citizen.Wait(100)
     end

@@ -1,4 +1,4 @@
--- resources/[warzone]/warzone_core/client/main.lua
+-- resources/[warzone]/warzone_core/client/main.lua 
 ESX = nil
 WarzonePlayer = {}
 local playerData = {}
@@ -20,9 +20,11 @@ AddEventHandler('warzone:playerLoaded', function(data)
     playerData = data
     isLoggedIn = true
     
-    ESX.ShowNotification(string.format('🎮 Welcome back, %s#%s!', data.nickname, data.tag))
-    ESX.ShowNotification(string.format('🎖️ Role: %s | 💀 K/D: %d/%d', 
-        Config.Roles[data.role].label, data.kills, data.deaths))
+    if ESX and ESX.ShowNotification then
+        ESX.ShowNotification(string.format('🎮 Welcome back, %s#%s!', data.nickname, data.tag))
+        ESX.ShowNotification(string.format('🎖️ Role: %s | 💀 K/D: %d/%d', 
+            Config.Roles[data.role].label, data.kills, data.deaths))
+    end
     
     -- Initialize UI
     TriggerEvent('warzone:updateHUD', data)
@@ -31,31 +33,41 @@ end)
 -- Character Creation
 RegisterNetEvent('warzone:showCharacterCreation')
 AddEventHandler('warzone:showCharacterCreation', function()
-    -- Simple character creation using ESX input
-    ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'character_creation', {
-        title = 'WARZONE INDONESIA - Character Creation'
-    }, function(data, menu)
-        local nickname = data.value
-        if nickname and string.len(nickname) >= 3 then
-            ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'tag_creation', {
-                title = 'Enter your TAG (2-6 characters)'
-            }, function(data2, menu2)
-                local tag = data2.value
-                if tag and string.len(tag) >= 2 then
-                    menu.close()
-                    menu2.close()
-                    TriggerServerEvent('warzone:createCharacter', nickname, tag)
-                else
-                    ESX.ShowNotification('❌ Tag must be 2-6 characters!')
-                end
-            end, function(data2, menu2)
-                menu2.close()
-            end)
-        else
-            ESX.ShowNotification('❌ Nickname must be at least 3 characters!')
+    Citizen.CreateThread(function()
+        while ESX == nil or ESX.UI == nil do
+            Citizen.Wait(100)
         end
-    end, function(data, menu)
-        menu.close()
+        
+        -- Simple character creation using ESX input
+        ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'character_creation', {
+            title = 'WARZONE INDONESIA - Character Creation'
+        }, function(data, menu)
+            local nickname = data.value
+            if nickname and string.len(nickname) >= 3 then
+                ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'tag_creation', {
+                    title = 'Enter your TAG (2-6 characters)'
+                }, function(data2, menu2)
+                    local tag = data2.value
+                    if tag and string.len(tag) >= 2 then
+                        menu.close()
+                        menu2.close()
+                        TriggerServerEvent('warzone:createCharacter', nickname, tag)
+                    else
+                        if ESX.ShowNotification then
+                            ESX.ShowNotification('❌ Tag must be 2-6 characters!')
+                        end
+                    end
+                end, function(data2, menu2)
+                    menu2.close()
+                end)
+            else
+                if ESX.ShowNotification then
+                    ESX.ShowNotification('❌ Nickname must be at least 3 characters!')
+                end
+            end
+        end, function(data, menu)
+            menu.close()
+        end)
     end)
 end)
 
@@ -63,7 +75,9 @@ end)
 RegisterNetEvent('warzone:characterCreated')
 AddEventHandler('warzone:characterCreated', function()
     -- Character creation successful
-    ESX.ShowNotification('✅ Welcome to WARZONE INDONESIA!')
+    if ESX and ESX.ShowNotification then
+        ESX.ShowNotification('✅ Welcome to WARZONE INDONESIA!')
+    end
     
     -- Teleport to spawn
     local ped = PlayerPedId()
@@ -77,9 +91,13 @@ AddEventHandler('warzone:setCombatStatus', function(status)
     combatStatus = status
     
     if status then
-        ESX.ShowNotification('⚔️ You are now in combat!')
+        if ESX and ESX.ShowNotification then
+            ESX.ShowNotification('⚔️ You are now in combat!')
+        end
     else
-        ESX.ShowNotification('✅ You are no longer in combat')
+        if ESX and ESX.ShowNotification then
+            ESX.ShowNotification('✅ You are no longer in combat')
+        end
     end
 end)
 
@@ -130,21 +148,20 @@ AddEventHandler('gameEventTriggered', function(name, args)
     end
 end)
 
--- Disable default respawn
-AddEventHandler('esx:onPlayerDeath', function(data)
-    -- Custom death handling will be implemented later
-end)
-
 -- Commands
 RegisterCommand('role', function()
     if playerData.role then
-        ESX.ShowNotification(string.format('🎖️ Current Role: %s', Config.Roles[playerData.role].label))
+        if ESX and ESX.ShowNotification then
+            ESX.ShowNotification(string.format('🎖️ Current Role: %s', Config.Roles[playerData.role].label))
+        end
     end
 end)
 
 RegisterCommand('money', function()
     if playerData.money then
-        ESX.ShowNotification(string.format('💰 Money: $%d', playerData.money))
+        if ESX and ESX.ShowNotification then
+            ESX.ShowNotification(string.format('💰 Money: $%d', playerData.money))
+        end
     end
 end)
 

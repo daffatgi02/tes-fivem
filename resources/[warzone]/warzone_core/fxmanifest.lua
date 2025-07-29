@@ -1,45 +1,38 @@
--- resources/[warzone]/warzone_core/fxmanifest.lua
+-- resources/[warzone]/warzone_zones/fxmanifest.lua
 fx_version 'cerulean'
 game 'gta5'
 
 author 'WARZONE INDONESIA DEV TEAM'
-description 'Warzone Indonesia - Core Framework'
+description 'Warzone Indonesia - Zone Management System'
 version '1.0.0'
 
 shared_scripts {
-    'shared/utils.lua',
-    'shared/functions.lua'
+    '@warzone_core/shared/utils.lua',
+    'shared/zones_data.lua'
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-    'config/main.lua',
-    'config/zones.lua',
-    'config/weapons.lua',
-    'config/spawns.lua',
-    'config/roles.lua',
-    'server/database.lua',
-    'server/main.lua',
-    'server/player.lua',
-    'server/events.lua'
+    '@warzone_core/config/main.lua',
+    '@warzone_core/config/zones.lua',
+    'config.lua',
+    'server/zones.lua',
+    'server/activity.lua'
 }
 
 client_scripts {
-    'config/main.lua',
-    'config/zones.lua',
-    'config/weapons.lua',
-    'config/spawns.lua',
-    'config/roles.lua',
-    'client/main.lua',
-    'client/ui.lua',
-    'client/combat.lua',
-    'client/spawn.lua'
+    '@warzone_core/config/main.lua',
+    '@warzone_core/config/zones.lua',
+    'config.lua',
+    'client/zones.lua',
+    'client/blips.lua',
+    'client/notifications.lua'
 }
 
 dependencies {
     'es_extended',
     'oxmysql',
-    'esx_notify'
+    'warzone_core'
 }
 
 lua54 'yes'
