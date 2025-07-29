@@ -127,6 +127,71 @@ Citizen.CreateThread(function()
     end
 end)
 
+-- Add crew-related commands
+RegisterCommand('crewspawn', function(source, args)
+    if not WarzonePlayer.IsLoggedIn() then return end
+    
+    if GetResourceState('warzone_crew') ~= 'started' then
+        ESX.ShowNotification('❌ Crew system not available')
+        return
+    end
+    
+    local crewData = exports.warzone_crew:GetCurrentCrew()
+    if not crewData then
+        ESX.ShowNotification('❌ You are not in a crew')
+        return
+    end
+    
+    -- Show crew spawn menu
+    local elements = {}
+    for identifier, member in pairs(crewData.members) do
+        if member.online and member.source ~= GetPlayerServerId(PlayerId()) then
+            table.insert(elements, {
+                label = string.format('%s %s', member.role == 'leader' and '👑' or (member.role == 'officer' and '⭐' or '👤'), member.displayName),
+                value = identifier
+            })
+        end
+    end
+    
+    if #elements == 0 then
+        ESX.ShowNotification('❌ No crew members online')
+        return
+    end
+    
+    ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'crew_spawn', {
+        title = '👥 Spawn near crew member',
+        align = 'top-left',
+        elements = elements
+    }, function(data, menu)
+        TriggerServerEvent('warzone:requestCrewSpawn', data.current.value)
+        menu.close()
+    end, function(data, menu)
+        menu.close()
+    end)
+end)
+
+-- Add crew info command
+RegisterCommand('crewinfo', function()
+    if GetResourceState('warzone_crew') == 'started' then
+        local crewData = exports.warzone_crew:GetCurrentCrew()
+        if crewData then
+            local onlineCount = 0
+            for _, member in pairs(crewData.members) do
+                if member.online then onlineCount = onlineCount + 1 end
+            end
+            
+            ESX.ShowNotification(string.format([[
+👥 CREW: %s
+📻 Radio: %.1f
+👤 Online: %d/%d
+🎖️ Total Kills: %d
+            ]], crewData.name, crewData.radioFrequency, onlineCount, crewData.memberCount, crewData.totalKills or 0))
+        else
+            ESX.ShowNotification('❌ You are not in a crew')
+        end
+    end
+end)
+
 -- Death Handler
 AddEventHandler('gameEventTriggered', function(name, args)
     if name == 'CEventNetworkEntityDamage' then

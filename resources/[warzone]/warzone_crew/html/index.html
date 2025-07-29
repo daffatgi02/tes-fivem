@@ -1,0 +1,92 @@
+<!-- resources/[warzone]/warzone_crew/html/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warzone Crew Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app" style="display: none;">
+        <!-- Crew Creation Panel -->
+        <div id="crewCreation" class="panel">
+            <h2>🏴 Create New Crew</h2>
+            <div class="form-group">
+                <label for="crewName">Crew Name:</label>
+                <input type="text" id="crewName" placeholder="Enter crew name..." maxlength="20">
+            </div>
+            <div class="cost-info">
+                💰 Creation Cost: $<span id="creationCost">1000</span>
+            </div>
+            <div class="button-group">
+                <button id="createBtn" class="btn btn-primary">Create Crew</button>
+                <button id="cancelBtn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Crew Management Panel -->
+        <div id="crewManagement" class="panel">
+            <div class="crew-header">
+                <h2 id="crewTitle">👥 Crew Name</h2>
+                <div class="crew-info">
+                    <span id="radioFreq">📻 100.0</span>
+                    <span id="memberCount">👤 1/6</span>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="members">Members</button>
+                <button class="tab-btn" data-tab="invite">Invite</button>
+                <button class="tab-btn" data-tab="settings">Settings</button>
+            </div>
+
+            <!-- Members Tab -->
+            <div id="members" class="tab-content active">
+                <div id="membersList" class="members-list">
+                    <!-- Members will be populated here -->
+                </div>
+            </div>
+
+            <!-- Invite Tab -->
+            <div id="invite" class="tab-content">
+                <div class="form-group">
+                    <label for="invitePlayerId">Player ID:</label>
+                    <input type="number" id="invitePlayerId" placeholder="Enter player ID...">
+                </div>
+                <button id="inviteBtn" class="btn btn-primary">Send Invitation</button>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings" class="tab-content">
+                <div class="settings-section">
+                    <h3>Crew Actions</h3>
+                    <button id="leaveBtn" class="btn btn-danger">Leave Crew</button>
+                </div>
+            </div>
+
+            <button id="closeBtn" class="btn btn-secondary close-btn">Close</button>
+        </div>
+
+        <!-- Invitation Modal -->
+        <div id="invitationModal" class="modal">
+            <div class="modal-content">
+                <h3>🎖️ Crew Invitation</h3>
+                <div id="invitationInfo">
+                    <p>You have been invited to join:</p>
+                    <div class="crew-invite-info">
+                        <strong id="inviteCrewName">Crew Name</strong>
+                        <span>by <span id="inviterName">Player Name</span></span>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button id="acceptInviteBtn" class="btn btn-primary">Accept</button>
+                    <button id="declineInviteBtn" class="btn btn-secondary">Decline</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

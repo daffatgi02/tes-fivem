@@ -188,7 +188,60 @@ end
 function WarzonePlayer.GetAll()
     return WarzonePlayer.Players
 end
-
+-- Add to Player:AddKill method
+function Player:AddKill(victim, weapon, zone, distance, headshot)
+    -- Check anti-farm
+    if self:IsKillValid(victim.identifier) then
+        self.kills = self.kills + 1
+        self.money = self.money + Config.KillReward
+        
+        -- Record kill in database
+        WarzoneDB.RecordKill(self.identifier, victim.identifier, weapon, zone, distance, headshot)
+        
+        -- Update anti-farm tracking
+        table.insert(self.lastKills, {
+            victim = victim.identifier,
+            time = os.time()
+        })
+        
+        -- Apply role bonuses
+        local roleConfig = Config.Roles[self.role]
+        if roleConfig and roleConfig.killBonus then
+            self.money = self.money + roleConfig.killBonus
+        end
+        
+        -- Crew bonus system
+        if GetResourceState('warzone_crew') == 'started' then
+            local crewData = exports.warzone_crew:GetPlayerCrew(self.source)
+            if crewData then
+                -- Give crew bonus
+                local crewBonus = math.floor(Config.KillReward * (CrewConfig.Bonuses.KillBonusMultiplier - 1))
+                if crewBonus > 0 then
+                    self.money = self.money + crewBonus
+                    TriggerClientEvent('esx:showNotification', self.source, 
+                        string.format('👥 Crew bonus: +$%d', crewBonus))
+                end
+                
+                -- Update crew kill contribution
+                TriggerEvent('warzone_crew:memberKill', self.source, victim.identifier)
+            end
+        end
+        
+        -- Notify player
+        local bonusText = headshot and " (+HEADSHOT BONUS)" or ""
+        TriggerClientEvent('esx:showNotification', self.source, 
+            string.format('💀 Kill: %s (+$%d%s)', victim:GetDisplayName(), Config.KillReward, bonusText))
+        
+        -- Update ESX money
+        local xPlayer = ESX.GetPlayerFromId(self.source)
+        if xPlayer then
+            xPlayer.addMoney(Config.KillReward)
+        end
+        
+        return true
+    end
+    return false
+end
 -- Combat Status Monitor
 Citizen.CreateThread(function()
     while true do

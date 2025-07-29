@@ -91,6 +91,66 @@ AddEventHandler('warzone:attemptCombat', function(targetSource)
     return true
 end)
 
+
+-- Add crew spawn coordination
+RegisterNetEvent('warzone:requestCrewSpawn')
+AddEventHandler('warzone:requestCrewSpawn', function(targetMemberId)
+    local _source = source
+    
+    if GetResourceState('warzone_crew') ~= 'started' then
+        TriggerClientEvent('esx:showNotification', _source, '❌ Crew system not available')
+        return
+    end
+    
+    local playerCrew = exports.warzone_crew:GetPlayerCrew(_source)
+    if not playerCrew then
+        TriggerClientEvent('esx:showNotification', _source, '❌ You are not in a crew')
+        return
+    end
+    
+    local targetMember = playerCrew.members[targetMemberId]
+    if not targetMember or not targetMember.online then
+        TriggerClientEvent('esx:showNotification', _source, '❌ Target crew member not online')
+        return
+    end
+    
+    local targetSource = targetMember.source
+    if not targetSource then return end
+    
+    -- Get target position
+    local targetPed = GetPlayerPed(targetSource)
+    local targetCoords = GetEntityCoords(targetPed)
+    
+    -- Check if target is in green zone
+    if GetResourceState('warzone_zones') == 'started' then
+        local zone, zoneType = exports.warzone_zones:GetZoneAtCoords(targetCoords)
+        if zoneType == 'green' then
+            TriggerClientEvent('esx:showNotification', _source, '❌ Cannot spawn in green zone')
+            return
+        end
+    end
+    
+    -- Find safe spawn location near target
+    local spawnCoords = WarzoneSpawn.FindSafeLocationNear(targetCoords, CrewConfig.Bonuses.MaxSpawnDistance)
+    
+    if spawnCoords then
+        -- Teleport player
+        local playerPed = GetPlayerPed(_source)
+        SetEntityCoords(playerPed, spawnCoords.x, spawnCoords.y, spawnCoords.z)
+        SetEntityHeading(playerPed, spawnCoords.w or 0.0)
+        
+        -- Give spawn protection
+        TriggerEvent('warzone:giveSpawnProtection', _source, CrewConfig.Bonuses.SpawnProtectionTime)
+        
+        TriggerClientEvent('esx:showNotification', _source, 
+            string.format('✅ Spawned near %s', targetMember.displayName))
+        TriggerClientEvent('esx:showNotification', targetSource, 
+            string.format('👥 %s spawned near you', WarzonePlayer.GetBySource(_source):GetDisplayName()))
+    else
+        TriggerClientEvent('esx:showNotification', _source, '❌ No safe spawn location found')
+    end
+end)
+
 -- Money Events
 RegisterNetEvent('warzone:addMoney')
 AddEventHandler('warzone:addMoney', function(amount, reason)
