@@ -5,18 +5,26 @@ local configs = {}
 
 
 -- Server callback to send configs to client
+-- Wait for ESX then register callbacks (FIXED)
 Citizen.CreateThread(function()
     while ESX == nil do
         TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
         Citizen.Wait(0)
     end
-
-    ESX.RegisterServerCallback('warzone_spawn:getConfigs', function(source, cb)
+    
+    -- Register callbacks after ESX is ready
+    ESX.RegisterServerCallback('warzone_combat:getConfigs', function(source, cb)
         cb({
-            spawn = WarzoneSpawnConfig.GetSpawn(),
-            locations = WarzoneSpawnConfig.GetLocations()
+            combat = WarzoneCombatConfig.GetCombat(),
+            weapons = WarzoneCombatConfig.GetWeapons(),
+            roles = WarzoneCombatConfig.GetRoles(),
+            armor = WarzoneCombatConfig.GetArmor(),
+            attachments = WarzoneCombatConfig.GetAttachments()
         })
     end)
+    
+    -- Initialize configs after ESX ready
+    WarzoneCombatConfig.Init()
 end)
 
 -- Load JSON config file

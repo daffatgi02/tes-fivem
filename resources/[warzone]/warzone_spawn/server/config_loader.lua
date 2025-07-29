@@ -112,6 +112,9 @@ exports('GetSpawnConfig', WarzoneSpawnConfig.GetSpawn)
 exports('GetLocationsConfig', WarzoneSpawnConfig.GetLocations)
 exports('ReloadConfig', WarzoneSpawnConfig.Reload)
 
+-- REPLACE the ESX callback section with:
+
+-- Wait for ESX then register callbacks (FIXED)
 Citizen.CreateThread(function()
     while ESX == nil do
         TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
@@ -125,4 +128,27 @@ Citizen.CreateThread(function()
             locations = WarzoneSpawnConfig.GetLocations()
         })
     end)
+    
+    ESX.RegisterServerCallback('warzone_spawn:getPlayerSpawnData', function(source, cb)
+        local playerData = exports.warzone_core:GetPlayerData(source)
+        local spawnData = {
+            locations = WarzoneSpawnConfig.GetLocations(),
+            playerInfo = playerData or {},
+            strategy = 'balanced'
+        }
+        cb(spawnData)
+    end)
+    
+    ESX.RegisterServerCallback('warzone_spawn:requestSpawn', function(source, cb, locationId, strategy)
+        -- Simple spawn logic for now
+        cb({
+            success = true,
+            coords = vector3(-1037.86, -2737.89, 20.17),
+            heading = 0.0,
+            locationName = locationId
+        })
+    end)
+    
+    -- Initialize configs after ESX ready
+    WarzoneSpawnConfig.Init()
 end)

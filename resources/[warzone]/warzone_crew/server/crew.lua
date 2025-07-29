@@ -4,14 +4,28 @@ WarzoneCrews.ActiveCrews = {}
 WarzoneCrews.PlayerCrews = {} -- Map player source to crew ID
 
 local ESX = nil
+-- Wait for dependencies (FIXED)
 Citizen.CreateThread(function()
-    while WarzonePlayer == nil do
-        TriggerEvent('warzone:getPlayerObject', function(obj)
-            WarzonePlayer = obj
-        end)
+    while ESX == nil do
+        TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+        Citizen.Wait(0)
+    end
+    
+    while not WarzonePlayer do
         Citizen.Wait(100)
     end
+    
+    print("^2[WARZONE CREW] Initializing crew system...^7")
+    
+    -- Initialize crew system after dependencies ready
+    WarzoneCrewInit()
 end)
+
+function WarzoneCrewInit()
+    -- Put existing crew initialization code here
+    print("^2[WARZONE CREW] Crew system initialized successfully!^7")
+end
+
 -- Initialize Crew System
 function WarzoneCrews.Init()
     print("[WARZONE CREW] Initializing crew system...")

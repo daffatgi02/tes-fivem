@@ -22,7 +22,7 @@ function WarzoneCore.Init()
     print("^2[WARZONE CORE] Core system initialized successfully!^7")
 end
 
--- Initialize database tables
+-- Initialize database tables (FIXED JSON DEFAULT)
 function WarzoneCore.InitDatabase()
     local queries = {
         [[CREATE TABLE IF NOT EXISTS warzone_players (
@@ -33,23 +33,23 @@ function WarzoneCore.InitDatabase()
             credits INT DEFAULT 5000,
             playtime INT DEFAULT 0,
             last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            data JSON DEFAULT '{}'
+            data JSON NULL
         )]],
         
         [[CREATE TABLE IF NOT EXISTS warzone_crews (
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(50) UNIQUE NOT NULL,
             leader VARCHAR(50) NOT NULL,
-            members JSON DEFAULT '[]',
+            members JSON NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            data JSON DEFAULT '{}'
+            data JSON NULL
         )]],
         
         [[CREATE TABLE IF NOT EXISTS warzone_statistics (
             id INT AUTO_INCREMENT PRIMARY KEY,
             player_id VARCHAR(50) NOT NULL,
             event_type VARCHAR(50) NOT NULL,
-            event_data JSON DEFAULT '{}',
+            event_data JSON NULL,
             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )]]
     }
@@ -65,22 +65,22 @@ end
 
 -- Setup player events
 function WarzoneCore.SetupPlayerEvents()
+    -- Player joined
+    AddEventHandler('esx:playerLoaded', function(playerId, xPlayer)
+        WarzonePlayer.Load(playerId, xPlayer)
+    end)
+    
+    -- Player left (FIXED)
+    AddEventHandler('esx:playerDropped', function(playerId, reason)
+        WarzonePlayer.Unload(playerId, reason)
+    end)
+    
     -- Player connecting
     AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
         local source = source
         local identifier = ESX.GetIdentifier(source)
         
         WarzoneUtils.Log('info', 'Player %s (%s) connecting...', name, identifier)
-    end)
-    
-    -- Player joined
-    AddEventHandler('esx:playerLoaded', function(playerId, xPlayer)
-        WarzonePlayer.Load(playerId, xPlayer)
-    end)
-    
-    -- Player left
-    AddEventHandler('esx:playerDropped', function(playerId, reason)
-        WarzonePlayer.Unload(playerId)
     end)
 end
 
@@ -99,7 +99,7 @@ function WarzonePlayer.Load(playerId, xPlayer)
                 deaths = result.deaths or 0,
                 credits = result.credits or 5000,
                 playtime = result.playtime or 0,
-                data = json.decode(result.data) or {}
+                data = result.data and json.decode(result.data) or {}
             }
         else
             -- New player, create record
@@ -113,8 +113,8 @@ function WarzonePlayer.Load(playerId, xPlayer)
                 data = {}
             }
             
-            MySQL.insert('INSERT INTO warzone_players (identifier, name) VALUES (?, ?)', {
-                identifier, xPlayer.getName()
+            MySQL.insert('INSERT INTO warzone_players (identifier, name, data) VALUES (?, ?, ?)', {
+                identifier, xPlayer.getName(), '{}'
             })
         end
         
@@ -123,11 +123,12 @@ function WarzonePlayer.Load(playerId, xPlayer)
     end)
 end
 
-function WarzonePlayer.Unload(playerId)
+-- FIXED Unload function
+function WarzonePlayer.Unload(playerId, reason)
     if WarzonePlayer[playerId] then
         WarzonePlayer.Save(playerId)
         WarzonePlayer[playerId] = nil
-        WarzoneUtils.Log('info', 'Player %s unloaded', playerId)
+        WarzoneUtils.Log('info', 'Player %s unloaded (reason: %s)', playerId, reason or 'disconnect')
     end
 end
 
@@ -140,7 +141,7 @@ function WarzonePlayer.Save(playerId)
         playerData.deaths, 
         playerData.credits,
         playerData.playtime,
-        json.encode(playerData.data),
+        json.encode(playerData.data or {}),
         playerData.identifier
     })
 end
