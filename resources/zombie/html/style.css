@@ -1,0 +1,389 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  background: transparent;
+  color: #fff;
+}
+
+.ui-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.ui-box {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  min-width: 600px;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  text-align: center;
+}
+
+.ui-box h2 {
+  margin-bottom: 25px;
+  font-size: 28px;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Tab Navigation */
+.tab-nav {
+  display: flex;
+  margin-bottom: 25px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: #4caf50;
+}
+
+.tab-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Tab Content */
+.tab-content {
+  display: none;
+  text-align: left;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+}
+
+.input-group input:focus {
+  outline: none;
+  box-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
+}
+
+.info-box {
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid rgba(76, 175, 80, 0.5);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.info-box p {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+/* Weapon Selection */
+.weapon-selection h3 {
+  margin-bottom: 15px;
+  text-align: center;
+  color: #4caf50;
+}
+
+.selected-weapons {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.selected-info {
+  font-weight: 500;
+  color: #4caf50;
+}
+
+.weapon-categories {
+  margin-bottom: 20px;
+}
+
+.category-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-btn.active {
+  background: #4caf50;
+  color: #fff;
+}
+
+.filter-btn:hover {
+  background: rgba(76, 175, 80, 0.7);
+}
+
+.weapon-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.weapon-item {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.weapon-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(76, 175, 80, 0.5);
+}
+
+.weapon-item.selected {
+  background: rgba(76, 175, 80, 0.3);
+  border-color: #4caf50;
+}
+
+.weapon-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.weapon-name {
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #fff;
+}
+
+.weapon-category {
+  font-size: 12px;
+  color: #ccc;
+  margin-bottom: 6px;
+}
+
+.weapon-ammo {
+  font-size: 11px;
+  color: #4caf50;
+}
+
+/* Buttons */
+.buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+button {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#startBtn {
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+}
+
+#startBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+}
+
+#startBtn:disabled {
+  background: #666;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+#closeBtn {
+  background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
+  color: white;
+}
+
+#closeBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+}
+
+.info-text {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.info-text p {
+  margin-bottom: 8px;
+}
+
+.info-text strong {
+  color: #4caf50;
+}
+
+/* Game UI */
+.game-ui {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 999;
+}
+
+.game-info {
+  background: rgba(0, 0, 0, 0.85);
+  padding: 20px;
+  border-radius: 10px;
+  border-left: 4px solid #4caf50;
+  min-width: 300px;
+}
+
+.enemies-left {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #4caf50;
+}
+
+.game-controls {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 15px;
+}
+
+.control-text {
+  margin-bottom: 5px;
+}
+
+.control-text strong {
+  color: #ff6b6b;
+}
+
+#enemyCounter {
+  color: #ff6b6b;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.stop-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
+  color: white;
+  font-size: 14px;
+  padding: 8px 16px;
+  margin-top: 10px;
+}
+
+.stop-btn:hover {
+  background: linear-gradient(135deg, #ff3742 0%, #ff2f3a 100%);
+  transform: translateY(-1px);
+}
+
+/* Scrollbar Styling */
+.weapon-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.weapon-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.weapon-list::-webkit-scrollbar-thumb {
+  background: rgba(76, 175, 80, 0.6);
+  border-radius: 3px;
+}
+
+.weapon-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(76, 175, 80, 0.8);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ui-box {
+    min-width: 90vw;
+    max-width: 95vw;
+    padding: 20px;
+  }
+
+  .weapon-list {
+    grid-template-columns: 1fr;
+    max-height: 250px;
+  }
+
+  .category-filter {
+    justify-content: flex-start;
+  }
+
+  .filter-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}

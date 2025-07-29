@@ -1,0 +1,53 @@
+# Folder cache dan temporary build
+cache/
+build/
+*.log
+
+# Config server pribadi
+server.cfg
+*.cfg
+*.ini
+
+# Token rahasia dan credential
+*.pem
+*.key
+*.crt
+*.db
+*.sqlite
+*.env
+.env.*
+
+# File sistem editor/IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Sistem OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node.js (jika menggunakan)
+node_modules/
+npm-debug.log
+
+# LuaRocks / CFX artifacts
+*.dll
+*.so
+*.dylib
+
+# Export client binaries (jika pakai fxserver artifact)
+*.exe
+*.pdb
+*.idb
+*.exp
+
+# NUI build artifacts
+dist/
+build/
+
+# Server dumps
+*.dmp
+
+# Optional: resource yang auto-generated
+resources/[local]/ # atau resources/[temp] jika ada

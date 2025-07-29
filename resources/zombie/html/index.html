@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Enemy Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Setup UI -->
+    <div id="setupUI" class="ui-container" style="display: none;">
+        <div class="ui-box">
+            <h2>🎯 Minigame: Enemy Hunt</h2>
+            
+            <!-- Tab Navigation -->
+            <div class="tab-nav">
+                <button class="tab-btn active" data-tab="settings">⚙️ Pengaturan</button>
+                <button class="tab-btn" data-tab="weapons">🔫 Pilih Senjata</button>
+            </div>
+            
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-content active">
+                <div class="input-group">
+                    <label>Jumlah Musuh (1-15):</label>
+                    <input type="number" id="enemyCount" min="1" max="15" value="5">
+                </div>
+                <div class="input-group">
+                    <label>Jarak Spawn (20-150m):</label>
+                    <input type="number" id="spawnDistance" min="20" max="150" value="50">
+                </div>
+                <div class="info-box">
+                    <p>🛡️ Anda akan mendapat armor penuh secara otomatis</p>
+                    <p>🔫 Pilih 2 senjata di tab "Pilih Senjata"</p>
+                </div>
+            </div>
+            
+            <!-- Weapons Tab -->
+            <div id="weapons-tab" class="tab-content">
+                <div class="weapon-selection">
+                    <h3>Pilih 2 Senjata (Max Class 3)</h3>
+                    <div class="selected-weapons">
+                        <div class="selected-info">
+                            Dipilih: <span id="selectedCount">0</span>/2
+                        </div>
+                    </div>
+                    
+                    <!-- Weapon Categories -->
+                    <div class="weapon-categories">
+                        <div class="category-filter">
+                            <button class="filter-btn active" data-category="all">Semua</button>
+                            <button class="filter-btn" data-category="Pistol">Pistol</button>
+                            <button class="filter-btn" data-category="SMG">SMG</button>
+                            <button class="filter-btn" data-category="Rifle">Rifle</button>
+                            <button class="filter-btn" data-category="Shotgun">Shotgun</button>
+                            <button class="filter-btn" data-category="LMG">LMG</button>
+                        </div>
+                    </div>
+                    
+                    <div id="weaponList" class="weapon-list">
+                        <!-- Weapons will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button id="startBtn">🚀 Mulai Game</button>
+                <button id="closeBtn">❌ Tutup</button>
+            </div>
+            
+            <div class="info-text">
+                <p>💡 Tips: Ketik <strong>/stop</strong> untuk berhenti game</p>
+                <p>⚠️ Game akan otomatis reset jika Anda mati</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Game UI -->
+    <div id="gameUI" class="game-ui" style="display: none;">
+        <div class="game-info">
+            <div class="enemies-left">
+                🎯 Musuh Tersisa: <span id="enemyCounter">0</span>
+            </div>
+            <div class="game-controls">
+                <div class="control-text">📍 Tekan 'M' untuk melihat lokasi musuh</div>
+                <div class="control-text">🛑 Ketik <strong>/stop</strong> untuk keluar</div>
+                <div class="control-text">💀 Jangan sampai mati atau game akan reset!</div>
+            </div>
+            <button id="stopGameBtn" class="stop-btn">🛑 Stop Game</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
