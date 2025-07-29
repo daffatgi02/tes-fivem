@@ -20,6 +20,48 @@ Citizen.CreateThread(function()
     end
 end)
 
+-- Combat prevention in green zones
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(100)
+        
+        if WarzonePlayer.IsLoggedIn() and GetResourceState('warzone_zones') == 'started' then
+            local inGreenZone = exports.warzone_zones:IsInGreenZone()
+            
+            if inGreenZone then
+                -- Prevent weapon firing
+                DisablePlayerFiring(PlayerId(), true)
+                
+                -- Prevent melee attacks
+                DisableControlAction(0, 140, true) -- Melee Attack Light
+                DisableControlAction(0, 141, true) -- Melee Attack Heavy
+                DisableControlAction(0, 142, true) -- Melee Attack Alternate
+                
+                -- Prevent throwing weapons
+                DisableControlAction(0, 57, true) -- Throw
+            end
+        end
+    end
+end)
+
+-- Enhanced kill feed with zone information
+RegisterNetEvent('warzone:killFeed')
+AddEventHandler('warzone:killFeed', function(data)
+    local weaponName = GetDisplayNameFromVehicleModel(data.weapon) or "Unknown"
+    local headshotText = data.headshot and " [HEADSHOT]" or ""
+    local distanceText = string.format(" (%.0fm)", data.distance)
+    local zoneText = data.zone and data.zone ~= "unknown" and string.format(" in %s", data.zone:gsub("_", " ")) or ""
+    
+    local message = string.format("💀 %s killed %s%s%s%s", 
+        data.killer, data.victim, distanceText, headshotText, zoneText)
+    
+    -- Display kill feed notification
+    ESX.ShowNotification(message, "error", 5000)
+    
+    -- Add to kill feed UI
+    TriggerEvent('warzone:addKillFeed', data)
+end)
+
 -- Combat Status Monitor
 Citizen.CreateThread(function()
     while true do

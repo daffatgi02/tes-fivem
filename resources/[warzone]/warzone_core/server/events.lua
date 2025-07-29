@@ -11,59 +11,84 @@ AddEventHandler('warzone:enterCombat', function()
     end
 end)
 
--- Kill Event
+-- Kill Event (Updated with zone integration)
 RegisterNetEvent('warzone:playerKilled')
--- resources/[warzone]/warzone_core/server/events.lua (continued)
 AddEventHandler('warzone:playerKilled', function(killerServerId, weapon)
-   local victimSource = source
-   local victim = WarzonePlayer.GetBySource(victimSource)
-   
-   if not victim then return end
-   
-   local killer = nil
-   if killerServerId then
-       killer = WarzonePlayer.GetBySource(killerServerId)
-   end
-   
-   -- Process death
-   victim:AddDeath(killer)
-   
-   -- Process kill if valid killer
-   if killer and killer.identifier ~= victim.identifier then
-       -- Calculate distance
-       local killerPed = GetPlayerPed(killerServerId)
-       local victimPed = GetPlayerPed(victimSource)
-       local killerCoords = GetEntityCoords(killerPed)
-       local victimCoords = GetEntityCoords(victimPed)
-       local distance = #(killerCoords - victimCoords)
-       
-       -- Check for headshot (simplified)
-       local headshot = HasEntityBeenDamagedByWeapon(victimPed, weapon, 4) -- component 4 = head
-       
-       -- Determine zone (will be expanded in zone system)
-       local zone = "unknown"
-       
-       -- Add kill
-       if killer:AddKill(victim, weapon, zone, distance, headshot) then
-           -- Broadcast kill feed
-           TriggerClientEvent('warzone:killFeed', -1, {
-               killer = killer:GetDisplayName(),
-               victim = victim:GetDisplayName(),
-               weapon = weapon,
-               distance = math.floor(distance),
-               headshot = headshot
-           })
-       end
-   end
-   
-   -- Save both players
-   if killer then killer:Save() end
-   victim:Save()
-   
-   -- Schedule respawn
-   Citizen.SetTimeout(Config.DeathTimeout * 1000, function()
-       TriggerClientEvent('warzone:respawn', victimSource)
-   end)
+    local victimSource = source
+    local victim = WarzonePlayer.GetBySource(victimSource)
+    
+    if not victim then return end
+    
+    local killer = nil
+    local killerCoords = nil
+    local victimCoords = GetEntityCoords(GetPlayerPed(victimSource))
+    
+    if killerServerId then
+        killer = WarzonePlayer.GetBySource(killerServerId)
+        killerCoords = GetEntityCoords(GetPlayerPed(killerServerId))
+    end
+    
+    -- Process death
+    victim:AddDeath(killer)
+    
+    -- Process kill if valid killer
+    if killer and killer.identifier ~= victim.identifier then
+        -- Calculate distance
+        local distance = killerCoords and #(killerCoords - victimCoords) or 0
+        
+        -- Check for headshot
+        local headshot = HasEntityBeenDamagedByWeapon(GetPlayerPed(victimSource), weapon, 4)
+        
+        -- Get zone information (integrated with zone system)
+        local zoneName = "unknown"
+        if GetResourceState('warzone_zones') == 'started' then
+            local zoneData = exports.warzone_zones:GetZoneAtCoords(killerCoords)
+            zoneName = zoneData or "unknown"
+            
+            -- Trigger zone kill recording
+            TriggerEvent('warzone:killRecorded', killerServerId, victimSource, killerCoords, victimCoords, weapon, headshot)
+        end
+        
+        -- Add kill
+        if killer:AddKill(victim, weapon, zoneName, distance, headshot) then
+            -- Broadcast kill feed
+            TriggerClientEvent('warzone:killFeed', -1, {
+                killer = killer:GetDisplayName(),
+                victim = victim:GetDisplayName(),
+                weapon = weapon,
+                distance = math.floor(distance),
+                headshot = headshot,
+                zone = zoneName
+            })
+        end
+    end
+    
+    -- Save both players
+    if killer then killer:Save() end
+    victim:Save()
+    
+    -- Schedule respawn
+    Citizen.SetTimeout(Config.DeathTimeout * 1000, function()
+        TriggerClientEvent('warzone:respawn', victimSource)
+    end)
+end)
+
+-- Green Zone Combat Prevention
+RegisterNetEvent('warzone:attemptCombat')
+AddEventHandler('warzone:attemptCombat', function(targetSource)
+    local _source = source
+    
+    if GetResourceState('warzone_zones') == 'started' then
+        local attackerInGreen = exports.warzone_zones:IsPlayerInGreenZone(_source)
+        local targetInGreen = targetSource and exports.warzone_zones:IsPlayerInGreenZone(targetSource) or false
+        
+        if attackerInGreen or targetInGreen then
+            TriggerClientEvent('esx:showNotification', _source, '❌ Combat is disabled in safe zones!')
+            return false
+        end
+    end
+    
+    return true
 end)
 
 -- Money Events
