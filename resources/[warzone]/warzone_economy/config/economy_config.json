@@ -1,0 +1,84 @@
+{
+  "economy": {
+    "currency": {
+      "name": "Warzone Credits",
+      "symbol": "WZ$",
+      "startingAmount": 500,
+      "maxAmount": 1000000,
+      "exchangeRates": {
+        "killReward": 100,
+        "headshotBonus": 50,
+        "streakBonus": 25,
+        "crewBonus": 10
+      }
+    },
+    "rewards": {
+      "kill": {
+        "baseReward": 100,
+        "headshotMultiplier": 1.5,
+        "distanceBonuses": {
+          "close": {"min": 0, "max": 10, "multiplier": 1.0},
+          "medium": {"min": 10, "max": 50, "multiplier": 1.1},
+          "long": {"min": 50, "max": 150, "multiplier": 1.3},
+          "extreme": {"min": 150, "max": 999, "multiplier": 1.5}
+        },
+        "weaponBonuses": {
+          "WEAPON_SNIPERRIFLE": 1.3,
+          "WEAPON_HEAVYSNIPER": 1.5,
+          "WEAPON_KNIFE": 2.0,
+          "WEAPON_MACHETE": 1.8
+        },
+        "streakRewards": {
+          "3": 50,
+          "5": 100,
+          "10": 250,
+          "15": 500,
+          "20": 1000
+        }
+      },
+      "survival": {
+        "baseRate": 5,
+        "intervalSeconds": 60,
+        "maxDuration": 1800,
+        "zoneBonuses": {
+          "red": 2.0,
+          "yellow": 1.5,
+          "white": 1.0,
+          "green": 0.5
+        }
+      },
+      "objectives": {
+        "firstKill": 200,
+        "dailyLogin": 100,
+        "weeklyChallenge": 500,
+        "crewVictory": 300,
+        "zoneControl": 150
+      }
+    },
+    "penalties": {
+      "teamKill": 500,
+      "suicide": 100,
+      "leaving": 50,
+      "farming": 1000
+    },
+    "antiFarm": {
+      "enabled": true,
+      "killCooldown": 90,
+      "maxKillsPerTarget": 3,
+      "resetInterval": 3600,
+      "farmingThreshold": 10,
+      "punishmentDuration": 1800
+    },
+    "inflation": {
+      "enabled": true,
+      "adjustmentRate": 0.01,
+      "adjustmentInterval": 86400,
+      "maxInflation": 0.5,
+      "economicFactors": {
+        "playerCount": 0.3,
+        "averageWealth": 0.4,
+        "marketActivity": 0.3
+      }
+    }
+  }
+}
